@@ -30,3 +30,9 @@
 *.exe
 *.out
 *.app
+build/msvs2017/x64/
+build/msvs2017/.vs/
+bin/LayoutTools.ilk
+bin/LayoutTools.pdb
+bin/tests/Prop2_v1.gds
+bin/tests/Prop2_v1.png
