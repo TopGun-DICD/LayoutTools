@@ -332,7 +332,7 @@ void GDSIIBinaryReader::ReadSection_LIBNAME(Record &_record) {
   char *str = new char[_record.length + 1];
   memset(str, 0, _record.length + 1);
   file.read(str, _record.length);
-  //p_activeLibrary->dbName = str;
+  p_activeLibrary->name = str;
   delete[] str;
   str = nullptr;
 }
@@ -1101,7 +1101,7 @@ bool GDSIIBinaryReader::ResolveReferences() {
           }
         if (l < p_lib->layers.size())
           continue;
-        LayerInfo li;
+        Layer li;
         li.layer = layer;
         li.items.push_back(p_lib->elements[j]->items[k]);
         p_lib->layers.push_back(li);

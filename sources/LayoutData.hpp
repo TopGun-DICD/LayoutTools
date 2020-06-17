@@ -5,7 +5,7 @@
 
 struct Units {
   double  user,
-    physical;
+          physical;
 };
 
 struct Coord {
@@ -54,7 +54,7 @@ public:
 
 struct GeometryItem_Path : public GeometryItem {
   __int16                     dataType,
-    pathType;
+                              pathType;
   __int32                     width;
 public:
   GeometryItem_Path() : GeometryItem(it_path), dataType(0), pathType(0), width(0) {}
@@ -62,9 +62,9 @@ public:
 
 struct GeometryItem_Text : public GeometryItem {
   __int16                     textType,
-    flagsPresentation,
-    pathType,
-    flagsTransformation;
+                              flagsPresentation,
+                              pathType,
+                              flagsTransformation;
   double                      magnification;
   __int32                     width;
   std::string                 stringValue;
@@ -89,12 +89,6 @@ public:
   GeometryItem_StructureRef() : GeometryItem(it_structRef), name(""), pReference(nullptr), transformationFlags(0), magnification(1.0) {}
 };
 
-
-
-
-
-
-
 struct Element {
   std::string                 name;
   std::vector<GeometryItem *> items;
@@ -108,7 +102,7 @@ public:
   }
 };
 
-struct LayerInfo {
+struct Layer {
   __int16                     layer;
   std::string                 name;
   std::vector<GeometryItem *> items;
@@ -118,7 +112,7 @@ struct Library {
   std::string                 name;
   Units                       units;
   std::vector<Element *>      elements;
-  std::vector<LayerInfo>      layers;
+  std::vector<Layer>          layers;
 public:
   ~Library() {
     for (size_t i = 0; i < elements.size(); ++i) {
