@@ -36,3 +36,4 @@ bin/LayoutTools.ilk
 bin/LayoutTools.pdb
 bin/tests/Prop2_v1.gds
 bin/tests/Prop2_v1.png
+build/msvs2015/.vs/
