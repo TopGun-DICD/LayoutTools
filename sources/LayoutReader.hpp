@@ -93,6 +93,5 @@ private:
   bool ResolveReferences();
 };
 
-
 AbstractLayoutReader *GetReader(const std::string &fName);
 void FreeReader(AbstractLayoutReader *ptr); 
