@@ -5,6 +5,7 @@
 
 // [1] http://boolean.klaasholwerda.nl/interface/bnf/gdsformat.html#recordover
 // [2] https://github.com/HomerReid/libGDSII/blob/master/lib/ReadGDSIIFile.cc
+// [3] https://www.artwork.com/gdsii/gdsii/index.htm
 
 enum RecordType {
   rt_HEADER       = 0x00,
@@ -187,7 +188,12 @@ GDSIIBinaryReader::GDSIIBinaryReader() : p_activeLibrary(nullptr), p_activeEleme
 bool GDSIIBinaryReader::IsMyFormat(const std::string &fName) {
   fileName = fName;
 
-  return true;
+  if (fName.substr(fName.find_last_of(".") + 1) == "gds")
+    return true;
+  if (fName.substr(fName.find_last_of(".") + 1) == "gdsii")
+    return true;
+
+  return false;
 }
 
 bool GDSIIBinaryReader::Read(LayoutData *layout) {
