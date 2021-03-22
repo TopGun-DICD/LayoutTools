@@ -1,185 +1,7 @@
 #include "LayoutReader.hpp"
+#include "HelperFunctions.hpp"
 
 #include <ctime>
-
-
-// [1] http://boolean.klaasholwerda.nl/interface/bnf/gdsformat.html#recordover
-// [2] https://github.com/HomerReid/libGDSII/blob/master/lib/ReadGDSIIFile.cc
-// [3] https://www.artwork.com/gdsii/gdsii/index.htm
-
-enum RecordType {
-  rt_HEADER       = 0x00,
-  rt_BGNLIB       = 0x01,
-  rt_LIBNAME      = 0x02,
-  rt_UNITS        = 0x03,
-  rt_ENDLIB       = 0x04,
-  rt_BGNSTR       = 0x05,
-  rt_STRNAME      = 0x06,
-  rt_ENDSTR       = 0x07,
-  rt_BOUNDARY     = 0x08,
-  rt_PATH         = 0x09,
-  rt_SREF         = 0x0A,
-  rt_AREF         = 0x0B,
-  rt_TEXT         = 0x0C,
-  rt_LAYER        = 0x0D,
-  rt_DATATYPE     = 0x0E,
-  rt_WIDTH        = 0x0F,
-  rt_XY           = 0x10,
-  rt_ENDEL        = 0x11,
-  rt_SNAME        = 0x12,
-  rt_COLROW       = 0x13,
-  rt_TEXTNODE     = 0x14,
-  rt_NODE         = 0x15,
-  rt_TEXTTYPE     = 0x16,
-  rt_PRESENTATION = 0x17,
-  // UNUSED       = 0x18,
-  rt_STRING       = 0x19,
-  rt_STRANS       = 0x1A,
-  rt_MAG          = 0x1B,
-  rt_ANGLE        = 0x1C,
-  rt_LINKTYPE     = 0x1D, // or UNUSED ??? [2]
-  rt_LINKKEYS     = 0x1E, // or UNUSED ??? [2]
-  rt_REFLIBS      = 0x1F,
-  rt_FONTS        = 0x20,
-  rt_PATHTYPE     = 0x21,
-  rt_GENERATIONS  = 0x22,
-  rt_ATTRTABLE    = 0x23,
-  rt_STYPTABLE    = 0x24,
-  rt_STRTYPE      = 0x25,
-  rt_ELFLAGS      = 0x26,
-  rt_ELKEY        = 0x27,
-  // UNUSED       = 0x28, or rt_LINKTYPE ??? [2]
-  // UNUSED       = 0x29, or rt_LINKKEYS ??? [2]
-  rt_NODETYPE     = 0x2A,
-  rt_PROPATTR     = 0x2B,
-  rt_PROPVALUE    = 0x2C,
-  rt_BOX          = 0x2D,
-  rt_BOXTYPE      = 0x2E,
-  rt_PLEX         = 0x2F,
-  rt_BGNEXTN      = 0x30,
-  rt_ENDTEXTN     = 0x31,
-  rt_TAPENUM      = 0x32,
-  rt_TAPECODE     = 0x33,
-  rt_STRCLASS     = 0x34,
-  rt_RESERVED     = 0x35,
-  rt_FORMAT       = 0x36,
-  rt_MASK         = 0x37,
-  rt_ENDMASK      = 0x38,
-  rt_LIBDIRSIZE   = 0x39,
-  rt_SRFNAME      = 0x3A,
-  rt_LIBSECUR     = 0x3b,
-};
-
-struct Record {
-  __int16 length;
-  __int8  recordType,
-          dataType;
-};
-
-struct DateTime {
-  __int16 year,
-          month,
-          day,
-          hour,
-          minute,
-          second;
-};
-
-// To access bits of a bit array
-#define  GET_BIT0 (data) (data & 0x001)
-#define  GET_BIT1 (data) (data & 0x002)
-#define  GET_BIT2 (data) (data & 0x004)
-#define  GET_BIT3 (data) (data & 0x008)
-#define  GET_BIT4 (data) (data & 0x010)
-#define  GET_BIT5 (data) (data & 0x020)
-#define  GET_BIT6 (data) (data & 0x040)
-#define  GET_BIT7 (data) (data & 0x080)
-#define  GET_BIT8 (data) (data & 0x100)
-#define  GET_BIT9 (data) (data & 0x200)
-#define  GET_BIT10(data) (data & 0x400)
-#define  GET_BIT11(data) (data & 0x800)
-#define  GET_BIT12(data) (data & 0x1000)
-#define  GET_BIT13(data) (data & 0x2000)
-#define  GET_BIT14(data) (data & 0x4000)
-#define  GET_BIT15(data) (data & 0x8000)
-
-union UNION_WORD {
-  __int16       value;
-  unsigned char byteArray[sizeof(__int16)];
-};
-
-union UNION_DWORD {
-  __int32       value;
-  unsigned char byteArray[sizeof(__int32)];
-};
-
-union UNION_DOUBLE {
-  double        value;
-  unsigned char byteArray[sizeof(double)];
-};
-
-void Normalize_WORD(__int16 &_value) {
-  UNION_WORD u;
-  unsigned char tempByte = 0;
-
-  u.value = _value;
-  tempByte = u.byteArray[1];
-  u.byteArray[1] = u.byteArray[0];
-  u.byteArray[0] = tempByte;
-  _value = u.value;
-
-  if (_value & 0x8000) {
-    _value &= 0x7fff;
-    _value ^= 0x7fff;
-    _value += 1;
-    _value *= -1;
-  }
-}
-
-void Normalize_DWORD(__int32 &_value) {
-  UNION_DWORD u;
-  unsigned char tempByte = 0;
-
-  u.value = _value;
-  tempByte = u.byteArray[3];
-  u.byteArray[3] = u.byteArray[0];
-  u.byteArray[0] = tempByte;
-  tempByte = u.byteArray[2];
-  u.byteArray[2] = u.byteArray[1];
-  u.byteArray[1] = tempByte;
-  _value = u.value;
-
-  if (_value & 0x80000000) {
-    _value &= 0x7fffffff;
-    _value ^= 0x7fffffff;
-    _value += 1;
-    _value *= -1;
-  }
-}
-
-void Normalize_DOUBLE(double &_value) {
-  UNION_DOUBLE u;
-  unsigned char tempByte = 0;
-
-  u.value = _value;
-
-  int realSign = u.byteArray[0] & 0x80;
-  int realExponent = (u.byteArray[0] & 0x7f) - 64;
-
-  double realMantissa = 0.0;
-  for (int i = 1; i < 8; ++i) {
-    realMantissa *= 0x100;
-    realMantissa += u.byteArray[i];
-  }
-
-  realMantissa /= pow((double)2, 7 * 8);
-  realMantissa *= pow((double)16, realExponent);
-  if (realSign)
-    realMantissa *= -1;
-
-  _value = realMantissa;
-}
-
 
 GDSIIBinaryReader::GDSIIBinaryReader() : p_activeLibrary(nullptr), p_activeElement(nullptr), p_activeItem(nullptr) {
 
@@ -188,9 +10,9 @@ GDSIIBinaryReader::GDSIIBinaryReader() : p_activeLibrary(nullptr), p_activeEleme
 bool GDSIIBinaryReader::IsMyFormat(const std::string &fName) {
   fileName = fName;
 
-  if (fName.substr(fName.find_last_of(".") + 1) == "gds")
+  if (fileName.substr(fileName.find_last_of(".") + 1) == "gds")
     return true;
-  if (fName.substr(fName.find_last_of(".") + 1) == "gdsii")
+  if (fileName.substr(fileName.find_last_of(".") + 1) == "gdsii")
     return true;
 
   return false;
@@ -199,7 +21,6 @@ bool GDSIIBinaryReader::IsMyFormat(const std::string &fName) {
 bool GDSIIBinaryReader::Read(LayoutData *layout) {
   if (!layout)
     return false;
-  p_data = layout;
 
   //std::clock_t startReading = std::clock();
 
@@ -207,12 +28,20 @@ bool GDSIIBinaryReader::Read(LayoutData *layout) {
   if (!file.is_open())
     return false;
 
+  p_data = layout;
+
+  int inFileposition = 0;
+
   Record gdsiiRecord;
-  while (!file.eof()) {
+  while (true) {
 
     file.read(reinterpret_cast<char *>(&gdsiiRecord), sizeof(Record));
+    if (file.eof())
+      break;
     Normalize_WORD(gdsiiRecord.length);
     gdsiiRecord.length -= sizeof(Record);
+
+    //inFileposition += gdsiiRecord.length;
 
     switch (gdsiiRecord.recordType) {
       case rt_HEADER      : ReadSection_HEADER(gdsiiRecord);          break;
@@ -282,13 +111,16 @@ bool GDSIIBinaryReader::Read(LayoutData *layout) {
 
   file .close();
   //std::clock_t stopReading = std::clock();
-
+  layout->fileName = fileName;
   return ResolveReferences();
 }
 
 void GDSIIBinaryReader::ReadSection_HEADER(Record &_record) {
   //TODO: read version number
-  file.seekg(_record.length, std::ios_base::cur);
+  __int16 versionNumber = 0;
+  file.read(reinterpret_cast<char *>(&versionNumber), sizeof(__int16));
+  Normalize_WORD(versionNumber);
+  //file.seekg(_record.length, std::ios_base::cur);
 }
 
 
@@ -304,21 +136,21 @@ void GDSIIBinaryReader::ReadSection_BEGINLIBRARY(Record &_record) {
   file.read(reinterpret_cast<char *>(&lastTimeModified), sizeof(DateTime));
   file.read(reinterpret_cast<char *>(&lastTimeAccessed), sizeof(DateTime));
 
-  /*
-  Normalize___int16(p_activeLibrary->lastTimeModified.year);
-  Normalize___int16(p_activeLibrary->lastTimeModified.month);
-  Normalize___int16(p_activeLibrary->lastTimeModified.day);
-  Normalize___int16(p_activeLibrary->lastTimeModified.hour);
-  Normalize___int16(p_activeLibrary->lastTimeModified.minute);
-  Normalize___int16(p_activeLibrary->lastTimeModified.second);
+  //*
+  Normalize_WORD(lastTimeModified.year);
+  Normalize_WORD(lastTimeModified.month);
+  Normalize_WORD(lastTimeModified.day);
+  Normalize_WORD(lastTimeModified.hour);
+  Normalize_WORD(lastTimeModified.minute);
+  Normalize_WORD(lastTimeModified.second);
 
-  Normalize___int16(p_activeLibrary->lastTimeAccessed.year);
-  Normalize___int16(p_activeLibrary->lastTimeAccessed.month);
-  Normalize___int16(p_activeLibrary->lastTimeAccessed.day);
-  Normalize___int16(p_activeLibrary->lastTimeAccessed.hour);
-  Normalize___int16(p_activeLibrary->lastTimeAccessed.minute);
-  Normalize___int16(p_activeLibrary->lastTimeAccessed.second);
-  */
+  Normalize_WORD(lastTimeAccessed.year);
+  Normalize_WORD(lastTimeAccessed.month);
+  Normalize_WORD(lastTimeAccessed.day);
+  Normalize_WORD(lastTimeAccessed.hour);
+  Normalize_WORD(lastTimeAccessed.minute);
+  Normalize_WORD(lastTimeAccessed.second);
+  //*/
 }
 
 void GDSIIBinaryReader::ReadSection_LIBNAME(Record &_record) {
@@ -389,21 +221,21 @@ void GDSIIBinaryReader::ReadSection_BEGINSTRUCTURE(Record &_record) {
   file.read(reinterpret_cast<char *>(&lastTimeModified), sizeof(DateTime));
   file.read(reinterpret_cast<char *>(&lastTimeAccessed), sizeof(DateTime));
 
-  /*
-  Normalize___int16(p_activeElement->lastTimeModified.year);
-  Normalize___int16(p_activeElement->lastTimeModified.month);
-  Normalize___int16(p_activeElement->lastTimeModified.day);
-  Normalize___int16(p_activeElement->lastTimeModified.hour);
-  Normalize___int16(p_activeElement->lastTimeModified.minute);
-  Normalize___int16(p_activeElement->lastTimeModified.second);
+  //*
+  Normalize_WORD(lastTimeModified.year);
+  Normalize_WORD(lastTimeModified.month);
+  Normalize_WORD(lastTimeModified.day);
+  Normalize_WORD(lastTimeModified.hour);
+  Normalize_WORD(lastTimeModified.minute);
+  Normalize_WORD(lastTimeModified.second);
 
-  Normalize___int16(p_activeElement->lastTimeAccessed.year);
-  Normalize___int16(p_activeElement->lastTimeAccessed.month);
-  Normalize___int16(p_activeElement->lastTimeAccessed.day);
-  Normalize___int16(p_activeElement->lastTimeAccessed.hour);
-  Normalize___int16(p_activeElement->lastTimeAccessed.minute);
-  Normalize___int16(p_activeElement->lastTimeAccessed.second);
-  */
+  Normalize_WORD(lastTimeAccessed.year);
+  Normalize_WORD(lastTimeAccessed.month);
+  Normalize_WORD(lastTimeAccessed.day);
+  Normalize_WORD(lastTimeAccessed.hour);
+  Normalize_WORD(lastTimeAccessed.minute);
+  Normalize_WORD(lastTimeAccessed.second);
+  //*/
 }
 
 void GDSIIBinaryReader::ReadSection_STRNAME(Record &_record) {

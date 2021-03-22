@@ -5,6 +5,7 @@
 #include <fstream>
 
 #include "LayoutData.hpp"
+#include "GDSIITypes.hpp"
 
 class AbstractLayoutReader {
 protected:
@@ -18,7 +19,6 @@ public:
   virtual bool Read(LayoutData *layout) = 0;
 };
 
-struct Record;
 class GDSIIBinaryReader : public AbstractLayoutReader {
   Library      *p_activeLibrary;
   Element      *p_activeElement;

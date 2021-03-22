@@ -144,13 +144,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\sources\HelperFunctions.cpp" />
     <ClCompile Include="..\..\sources\LayoutReader.cpp" />
     <ClCompile Include="..\..\sources\LayoutReader_GDSIIbin.cpp" />
+    <ClCompile Include="..\..\sources\LayoutWriter.cpp" />
+    <ClCompile Include="..\..\sources\LayoutWriter_GDSIIbin.cpp" />
     <ClCompile Include="..\..\sources\main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\sources\GDSIITypes.hpp" />
+    <ClInclude Include="..\..\sources\HelperFunctions.hpp" />
     <ClInclude Include="..\..\sources\LayoutData.hpp" />
     <ClInclude Include="..\..\sources\LayoutReader.hpp" />
+    <ClInclude Include="..\..\sources\LayoutWriter.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

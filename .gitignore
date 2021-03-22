@@ -37,3 +37,6 @@ bin/LayoutTools.pdb
 bin/tests/Prop2_v1.gds
 bin/tests/Prop2_v1.png
 build/msvs2015/.vs/
+bin/output.gds
+build/msvs2019/.vs/
+build/msvs2019/x64/
