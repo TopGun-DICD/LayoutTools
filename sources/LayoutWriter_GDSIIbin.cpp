@@ -208,8 +208,8 @@ void GDSIIBinaryWriter::WriteSection_BOUNDARY(GeometryItem_Boundary *boundary) {
   file.write(reinterpret_cast<char *>(&gdsiiRecord), sizeof(Record));
   for (size_t i = 0; i < boundary->coords.size(); ++i) {
     Coord coord = boundary->coords[i];
-    Normalize_DWORD(coord.x);
-    Normalize_DWORD(coord.y);
+    DeNormalize_DWORD(coord.x);
+    DeNormalize_DWORD(coord.y);
     file.write(reinterpret_cast<char *>(&coord), sizeof(Coord));
   }
   // ENDEL
@@ -247,8 +247,8 @@ void GDSIIBinaryWriter::WriteSection_SREF(GeometryItem_StructureRef *reference) 
   DeNormalize_WORD(gdsiiRecord.length);
   file.write(reinterpret_cast<char *>(&gdsiiRecord), sizeof(Record));
   Coord coord = reference->coords[0];
-  Normalize_DWORD(coord.x);
-  Normalize_DWORD(coord.y);
+  DeNormalize_DWORD(coord.x);
+  DeNormalize_DWORD(coord.y);
   file.write(reinterpret_cast<char *>(&coord), sizeof(Coord));
   // ENDEL
   gdsiiRecord.recordType = rt_ENDEL;
@@ -307,8 +307,8 @@ void GDSIIBinaryWriter::WriteSection_PATH(GeometryItem_Path *path) {
   file.write(reinterpret_cast<char *>(&gdsiiRecord), sizeof(Record));
   for (size_t i = 0; i < path->coords.size(); ++i) {
     Coord coord = path->coords[i];
-    Normalize_DWORD(coord.x);
-    Normalize_DWORD(coord.y);
+    DeNormalize_DWORD(coord.x);
+    DeNormalize_DWORD(coord.y);
     file.write(reinterpret_cast<char *>(&coord), sizeof(Coord));
   }
   // ENDEL
