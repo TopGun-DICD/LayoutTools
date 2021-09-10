@@ -40,3 +40,6 @@ build/msvs2015/.vs/
 bin/output.gds
 build/msvs2019/.vs/
 build/msvs2019/x64/
+bin/report.txt
+bin/tests/testDesign.gds
+bin/tests/testDesign.txt

@@ -24,7 +24,7 @@
     <ClCompile Include="..\..\sources\LayoutReader_GDSIIbin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\sources\HelperFunctions.cpp">
+    <ClCompile Include="..\..\sources\GDSIIHelperFunctions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\sources\LayoutWriter.cpp">
@@ -41,7 +41,7 @@
     <ClInclude Include="..\..\sources\LayoutReader.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\sources\HelperFunctions.hpp">
+    <ClInclude Include="..\..\sources\GDSIIHelperFunctions.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\sources\LayoutWriter.hpp">

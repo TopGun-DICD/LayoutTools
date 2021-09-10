@@ -1,5 +1,5 @@
 #include "LayoutWriter.hpp"
-#include "HelperFunctions.hpp"
+#include "GDSIIHelperFunctions.hpp"
 
 #include <ctime>
 #include "GDSIITypes.hpp"
