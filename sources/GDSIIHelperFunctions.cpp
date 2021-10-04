@@ -3,7 +3,7 @@
 #include <cmath>
 #include <cfloat>
 
-void Normalize_WORD(__int16 &_value) {
+void Normalize_WORD(int16_t &_value) {
   UNION_WORD u;
   unsigned char tempByte = 0;
 
@@ -21,17 +21,17 @@ void Normalize_WORD(__int16 &_value) {
   }
 }
 
-void DeNormalize_WORD(__int16 &_value) {
+void DeNormalize_WORD(int16_t &_value) {
   char* const p = reinterpret_cast<char *>(&_value);
   char byte;
-  for (size_t i = 0; i < sizeof(__int16) / 2; ++i) {
+  for (size_t i = 0; i < sizeof(int16_t) / 2; ++i) {
     byte = p[i];
-    p[i] = p[sizeof(__int16) - i - 1];
-    p[sizeof(__int16) - i - 1] = byte;
+    p[i] = p[sizeof(int16_t) - i - 1];
+    p[sizeof(int16_t) - i - 1] = byte;
   }
 }
 
-void Normalize_DWORD(__int32 &_value) {
+void Normalize_DWORD(int32_t &_value) {
   UNION_DWORD u;
   unsigned char tempByte = 0;
 
@@ -52,7 +52,7 @@ void Normalize_DWORD(__int32 &_value) {
   }
 }
 
-void DeNormalize_DWORD(__int32 &_value) {
+void DeNormalize_DWORD(int32_t &_value) {
   UNION_DWORD u;
   unsigned char tempByte = 0;
 

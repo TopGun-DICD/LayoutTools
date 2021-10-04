@@ -12,9 +12,10 @@ int main(int argc, char *argv[]) {
   //std::string fileName = "tests/nand2.gds";
   //std::string fileName = "tests/xor.gds";
   //std::string fileName = "tests/1Kpolyg.gds";
-  std::string fileName = "tests/testDesign.gds";
+  //std::string fileName = "tests/testDesign.gds";
+  std::string fileName = "tests/cmos.msk";
 
-  AbstractLayoutReader *p_reader = GetReader(fileName);
+  LayoutReader *p_reader = GetReader(fileName);
   if (!p_reader) {
     std::cerr << "__err__ : Can't file appropriate reader for given file '" << fileName << "'." << std::endl;
     return EXIT_FAILURE;

@@ -33,6 +33,9 @@
     <ClCompile Include="..\..\sources\LayoutWriter_GDSIIbin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\sources\LayoutReader_MSK.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\sources\LayoutData.hpp">

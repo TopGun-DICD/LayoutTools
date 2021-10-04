@@ -6,19 +6,19 @@
 
 #include "LayoutData.hpp"
 
-class AbstractLayoutWriter {
+class LayoutWriter {
 protected:
   LayoutData   *p_data;
   std::ofstream file;
 public:
-  AbstractLayoutWriter();
+  LayoutWriter();
 public:
   virtual bool Write(std::string fileName, LayoutData *layout) = 0;
 };
 
-class GDSIIBinaryWriter : public AbstractLayoutWriter {
+class LayoutWriter_GDSIIBin : public LayoutWriter {
 public:
-  GDSIIBinaryWriter();
+  LayoutWriter_GDSIIBin();
 public:
   bool Write(std::string fileName, LayoutData *layout) final;
 private:
@@ -39,5 +39,5 @@ private:
   void WriteSection_PATH(GeometryItem_Path *path);
 };
 
-AbstractLayoutWriter *GetWriter(const std::string &format);
-void FreeWriter(AbstractLayoutWriter *ptr);
+LayoutWriter *GetWriter(const std::string &format);
+void FreeWriter(LayoutWriter *ptr);

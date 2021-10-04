@@ -1,30 +1,38 @@
+/*
+ * LayoutReader.hpp
+ *
+ * Layout formats implementation:
+ * GDSII Binary - Dmitry A. Bulakh
+ * MSK          - Mikhail S. Kotlyarov 
+ */
 #pragma once
 
 #include <string>
 #include <vector>
 #include <fstream>
+#include <unordered_set>
 
 #include "LayoutData.hpp"
 #include "GDSIITypes.hpp"
 
-class AbstractLayoutReader {
+class LayoutReader {
 protected:
   std::string   fileName;
   LayoutData   *p_data;
   std::ifstream file;
 public:
-  AbstractLayoutReader();
+  LayoutReader();
 public:
   virtual bool IsMyFormat(const std::string &fName) = 0;
   virtual bool Read(LayoutData *layout) = 0;
 };
 
-class GDSIIBinaryReader : public AbstractLayoutReader {
+class LayoutReader_GDSIIBin : public LayoutReader {
   Library      *p_activeLibrary;
   Element      *p_activeElement;
   GeometryItem *p_activeItem;
 public:
-  GDSIIBinaryReader();
+  LayoutReader_GDSIIBin();
 public:
   bool IsMyFormat(const std::string &fName) final;
   bool Read(LayoutData *layout) final;
@@ -93,5 +101,24 @@ private:
   bool ResolveReferences();
 };
 
-AbstractLayoutReader *GetReader(const std::string &fName);
-void FreeReader(AbstractLayoutReader *ptr); 
+class LayoutReader_MSK :public LayoutReader {
+  Library      *p_active_library;
+  Element      *p_active_element;
+  GeometryItem *p_active_geometry_item;
+
+public:
+  LayoutReader_MSK() :p_active_library(nullptr), p_active_element(nullptr), p_active_geometry_item(nullptr) {}
+public:
+  bool            IsMyFormat(const std::string& fName) override final;
+  bool            Read(LayoutData* layout) override final;
+private:
+  inline bool     read_Bounding_box_coords(const std::string& line, Coord& left_bot, Coord& right_top);
+  inline bool     read_Rectangle_coords(const std::string& line, Coord& left_bot, Coord& right_top, std::string& layer_name);
+  void		        fill_GeometryItem_box(GeometryItem* filling_box, const Coord& right_top, const Coord& left_bot);
+  inline int32_t  calculate_delta(const int32_t first, const int32_t second);
+  int16_t		      my_index_find(const std::unordered_set<std::string>& current_set, const std::string& str);
+
+};
+
+LayoutReader *GetReader(const std::string &fName);
+void FreeReader(LayoutReader *ptr);

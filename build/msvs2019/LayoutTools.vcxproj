@@ -150,6 +150,7 @@
     <ClCompile Include="..\..\sources\LayoutWriter.cpp" />
     <ClCompile Include="..\..\sources\LayoutWriter_GDSIIbin.cpp" />
     <ClCompile Include="..\..\sources\main.cpp" />
+    <ClCompile Include="..\..\sources\LayoutReader_MSK.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\sources\GDSIITypes.hpp" />

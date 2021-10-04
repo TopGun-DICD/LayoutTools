@@ -19,12 +19,18 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\sources\GDSIIHelperFunctions.hpp" />
+    <ClInclude Include="..\..\sources\GDSIITypes.hpp" />
     <ClInclude Include="..\..\sources\LayoutData.hpp" />
     <ClInclude Include="..\..\sources\LayoutReader.hpp" />
+    <ClInclude Include="..\..\sources\LayoutWriter.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\sources\GDSIIHelperFunctions.cpp" />
     <ClCompile Include="..\..\sources\LayoutReader.cpp" />
     <ClCompile Include="..\..\sources\LayoutReader_GDSIIbin.cpp" />
+    <ClCompile Include="..\..\sources\LayoutWriter.cpp" />
+    <ClCompile Include="..\..\sources\LayoutWriter_GDSIIbin.cpp" />
     <ClCompile Include="..\..\sources\main.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

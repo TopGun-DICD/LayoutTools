@@ -1,14 +1,21 @@
+/*
+ * LayoutWriter_GDSIIBin.cpp
+ *
+ * Calma binary GDS II file format writer by Dmitry A. Bulakh
+ * 20.03.2021
+ */
+
 #include "LayoutWriter.hpp"
 #include "GDSIIHelperFunctions.hpp"
 
 #include <ctime>
 #include "GDSIITypes.hpp"
 
-GDSIIBinaryWriter::GDSIIBinaryWriter() {
+LayoutWriter_GDSIIBin::LayoutWriter_GDSIIBin() {
 
 }
 
-bool GDSIIBinaryWriter::Write(std::string fileName, LayoutData *layout) {
+bool LayoutWriter_GDSIIBin::Write(std::string fileName, LayoutData *layout) {
   if (!layout)
     return false;
   
@@ -34,16 +41,14 @@ bool GDSIIBinaryWriter::Write(std::string fileName, LayoutData *layout) {
       WriteSection_STRNAME(layout->libraries[i]->elements[j]);
 
       for (size_t k = 0; k < layout->libraries[i]->elements[j]->items.size(); ++k) {
-        //if (j == 1 && k == 16)
-        //  break;
         switch (layout->libraries[i]->elements[j]->items[k]->type) {
-          case it_boundary:
+          case ItemType::boundary:
             WriteSection_BOUNDARY(reinterpret_cast<GeometryItem_Boundary *>(layout->libraries[i]->elements[j]->items[k]));
             break;
-          case it_structRef:
+          case ItemType::reference:
             WriteSection_SREF(reinterpret_cast<GeometryItem_StructureRef *>(layout->libraries[i]->elements[j]->items[k]));
             break;
-          case it_path:
+          case ItemType::path:
             WriteSection_PATH(reinterpret_cast<GeometryItem_Path *>(layout->libraries[i]->elements[j]->items[k]));
             break;
         }
@@ -61,18 +66,18 @@ bool GDSIIBinaryWriter::Write(std::string fileName, LayoutData *layout) {
   return true;
 }
 
-void GDSIIBinaryWriter::WriteSection_HEADER() {
-  Record gdsiiRecord = { sizeof(Record) + sizeof(__int16) , rt_HEADER , 2 };
+void LayoutWriter_GDSIIBin::WriteSection_HEADER() {
+  Record gdsiiRecord = { sizeof(Record) + sizeof(int16_t) , rt_HEADER , 2 };
   // Write Header
   DeNormalize_WORD(gdsiiRecord.length);
   file.write(reinterpret_cast<char *>(&gdsiiRecord), sizeof(Record)); 
   // Write Data
-  __int16 versionNumber = 600;
+  int16_t versionNumber = 600;
   DeNormalize_WORD(versionNumber);
-  file.write(reinterpret_cast<char *>(&versionNumber), sizeof(__int16));
+  file.write(reinterpret_cast<char *>(&versionNumber), sizeof(int16_t));
 }
 
-void GDSIIBinaryWriter::WriteSection_BEGINLIBRARY() {
+void LayoutWriter_GDSIIBin::WriteSection_BEGINLIBRARY() {
   Record gdsiiRecord = { sizeof(Record) + 2 * sizeof(DateTime) , rt_BGNLIB , 2};
   // Write Header
   DeNormalize_WORD(gdsiiRecord.length);
@@ -98,8 +103,8 @@ void GDSIIBinaryWriter::WriteSection_BEGINLIBRARY() {
   file.write(reinterpret_cast<char *>(&lastTimeAccessed), sizeof(DateTime));
 }
 
-void GDSIIBinaryWriter::WriteSection_LIBNAME(Library *lib) {
-  Record gdsiiRecord = { static_cast < __int16>(sizeof(Record)) + static_cast<__int16>(lib->name.length()) , rt_LIBNAME , 6 };
+void LayoutWriter_GDSIIBin::WriteSection_LIBNAME(Library *lib) {
+  Record gdsiiRecord = { static_cast <int16_t>(sizeof(Record)) + static_cast<int16_t>(lib->name.length()) , rt_LIBNAME , 6 };
   // Write Header
   DeNormalize_WORD(gdsiiRecord.length);
   file.write(reinterpret_cast<char *>(&gdsiiRecord), sizeof(Record));
@@ -107,7 +112,7 @@ void GDSIIBinaryWriter::WriteSection_LIBNAME(Library *lib) {
   file.write(lib->name.data(), lib->name.length());
 }
 
-void GDSIIBinaryWriter::WriteSection_UNITS(Library *lib) {
+void LayoutWriter_GDSIIBin::WriteSection_UNITS(Library *lib) {
   Record gdsiiRecord = { sizeof(Record) + sizeof(Units) , rt_UNITS , 5};
   // Write Header
   DeNormalize_WORD(gdsiiRecord.length);
@@ -120,14 +125,14 @@ void GDSIIBinaryWriter::WriteSection_UNITS(Library *lib) {
   file.write(reinterpret_cast<char *>(&units), sizeof(Units));
 }
 
-void GDSIIBinaryWriter::WriteSection_ENDLIBRARY(Library *lib) {
+void LayoutWriter_GDSIIBin::WriteSection_ENDLIBRARY(Library *lib) {
   Record gdsiiRecord = { sizeof(Record) , rt_ENDLIB , 0 };
   // Write Header
   DeNormalize_WORD(gdsiiRecord.length);
   file.write(reinterpret_cast<char *>(&gdsiiRecord), sizeof(Record));
 }
 
-void GDSIIBinaryWriter::WriteSection_BEGINSTRUCTURE(Element *element) {
+void LayoutWriter_GDSIIBin::WriteSection_BEGINSTRUCTURE(Element *element) {
   Record gdsiiRecord = { sizeof(Record) + 2 * sizeof(DateTime) , rt_BGNSTR , 2 };
   // Write Header
   DeNormalize_WORD(gdsiiRecord.length);
@@ -153,11 +158,11 @@ void GDSIIBinaryWriter::WriteSection_BEGINSTRUCTURE(Element *element) {
   file.write(reinterpret_cast<char *>(&lastTimeAccessed), sizeof(DateTime));
 }
 
-void GDSIIBinaryWriter::WriteSection_STRNAME(Element *element) {
+void LayoutWriter_GDSIIBin::WriteSection_STRNAME(Element *element) {
   int actualNameLength = static_cast<int>(element->name.length());
   if(element->name.length() % 4 != 0)
     actualNameLength = ((static_cast<int>(element->name.length()) / 4) + 1) * 4;
-  Record gdsiiRecord = { static_cast < __int16>(sizeof(Record)) + static_cast<__int16>(actualNameLength) , rt_STRNAME , 6 };
+  Record gdsiiRecord = { static_cast <int16_t>(sizeof(Record)) + static_cast<int16_t>(actualNameLength) , rt_STRNAME , 6 };
   // Write Header
   DeNormalize_WORD(gdsiiRecord.length);
   file.write(reinterpret_cast<char *>(&gdsiiRecord), sizeof(Record));
@@ -170,39 +175,39 @@ void GDSIIBinaryWriter::WriteSection_STRNAME(Element *element) {
   }
 }
 
-void GDSIIBinaryWriter::WriteSection_ENDSTRUCTURE(Element *element) {
+void LayoutWriter_GDSIIBin::WriteSection_ENDSTRUCTURE(Element *element) {
   Record gdsiiRecord = { sizeof(Record) , rt_ENDSTR , 0 };
   // Write Header
   DeNormalize_WORD(gdsiiRecord.length);
   file.write(reinterpret_cast<char *>(&gdsiiRecord), sizeof(Record));
 }
 
-void GDSIIBinaryWriter::WriteSection_BOUNDARY(GeometryItem_Boundary *boundary) {
+void LayoutWriter_GDSIIBin::WriteSection_BOUNDARY(GeometryItem_Boundary *boundary) {
   Record gdsiiRecord = { sizeof(Record) , rt_BOUNDARY , 0 };
   // Write Header
   DeNormalize_WORD(gdsiiRecord.length);
   file.write(reinterpret_cast<char *>(&gdsiiRecord), sizeof(Record));
   // LAYER
   gdsiiRecord.recordType = rt_LAYER;
-  gdsiiRecord.length = sizeof(Record) + sizeof(__int16);
+  gdsiiRecord.length = sizeof(Record) + sizeof(int16_t);
   gdsiiRecord.dataType = 2;
   DeNormalize_WORD(gdsiiRecord.length);
   file.write(reinterpret_cast<char *>(&gdsiiRecord), sizeof(Record));
-  __int16 layerNumber = boundary->layer;
+  int16_t layerNumber = boundary->layer;
   DeNormalize_WORD(layerNumber);
-  file.write(reinterpret_cast<char *>(&layerNumber), sizeof(__int16));
+  file.write(reinterpret_cast<char *>(&layerNumber), sizeof(int16_t));
   // DATATYPE
   gdsiiRecord.recordType = rt_DATATYPE;
-  gdsiiRecord.length = sizeof(Record) + sizeof(__int16);
+  gdsiiRecord.length = sizeof(Record) + sizeof(int16_t);
   gdsiiRecord.dataType = 2;
   DeNormalize_WORD(gdsiiRecord.length);
   file.write(reinterpret_cast<char *>(&gdsiiRecord), sizeof(Record));
-  __int16 dataType = boundary->dataType;
+  int16_t dataType = boundary->dataType;
   DeNormalize_WORD(dataType);
-  file.write(reinterpret_cast<char *>(&dataType), sizeof(__int16));
+  file.write(reinterpret_cast<char *>(&dataType), sizeof(int16_t));
   // XY
   gdsiiRecord.recordType = rt_XY;
-  gdsiiRecord.length = sizeof(Record) + static_cast<__int16>(boundary->coords.size()) * sizeof(Coord);
+  gdsiiRecord.length = sizeof(Record) + static_cast<int16_t>(boundary->coords.size()) * sizeof(Coord);
   gdsiiRecord.dataType = 3;
   DeNormalize_WORD(gdsiiRecord.length);
   file.write(reinterpret_cast<char *>(&gdsiiRecord), sizeof(Record));
@@ -220,7 +225,7 @@ void GDSIIBinaryWriter::WriteSection_BOUNDARY(GeometryItem_Boundary *boundary) {
   file.write(reinterpret_cast<char *>(&gdsiiRecord), sizeof(Record));
 }
 
-void GDSIIBinaryWriter::WriteSection_SREF(GeometryItem_StructureRef *reference) {
+void LayoutWriter_GDSIIBin::WriteSection_SREF(GeometryItem_StructureRef *reference) {
   Record gdsiiRecord = { sizeof(Record) , rt_SREF , 0 };
   // Write Header
   DeNormalize_WORD(gdsiiRecord.length);
@@ -230,7 +235,7 @@ void GDSIIBinaryWriter::WriteSection_SREF(GeometryItem_StructureRef *reference) 
   int actualNameLength = static_cast<int>(reference->name.length());
   if(reference->name.length() % 4 != 0)
     actualNameLength = static_cast<int>(((reference->name.length() / 4) + 1) * 4);
-  gdsiiRecord.length = sizeof(Record) + static_cast<__int16>(actualNameLength);
+  gdsiiRecord.length = sizeof(Record) + static_cast<int16_t>(actualNameLength);
   gdsiiRecord.dataType = 6;
   DeNormalize_WORD(gdsiiRecord.length);
   file.write(reinterpret_cast<char *>(&gdsiiRecord), sizeof(Record));
@@ -258,50 +263,50 @@ void GDSIIBinaryWriter::WriteSection_SREF(GeometryItem_StructureRef *reference) 
   file.write(reinterpret_cast<char *>(&gdsiiRecord), sizeof(Record));
 }
 
-void GDSIIBinaryWriter::WriteSection_PATH(GeometryItem_Path *path) {
+void LayoutWriter_GDSIIBin::WriteSection_PATH(GeometryItem_Path *path) {
   Record gdsiiRecord = { sizeof(Record) , rt_PATH , 0 };
   // Write Header
   DeNormalize_WORD(gdsiiRecord.length);
   file.write(reinterpret_cast<char *>(&gdsiiRecord), sizeof(Record));
   // LAYER
   gdsiiRecord.recordType = rt_LAYER;
-  gdsiiRecord.length = sizeof(Record) + sizeof(__int16);
+  gdsiiRecord.length = sizeof(Record) + sizeof(int16_t);
   gdsiiRecord.dataType = 2;
   DeNormalize_WORD(gdsiiRecord.length);
   file.write(reinterpret_cast<char *>(&gdsiiRecord), sizeof(Record));
-  __int16 layerNumber = path->layer;
+  int16_t layerNumber = path->layer;
   DeNormalize_WORD(layerNumber);
-  file.write(reinterpret_cast<char *>(&layerNumber), sizeof(__int16));
+  file.write(reinterpret_cast<char *>(&layerNumber), sizeof(int16_t));
   // DATATYPE
   gdsiiRecord.recordType = rt_DATATYPE;
-  gdsiiRecord.length = sizeof(Record) + sizeof(__int16);
+  gdsiiRecord.length = sizeof(Record) + sizeof(int16_t);
   gdsiiRecord.dataType = 2;
   DeNormalize_WORD(gdsiiRecord.length);
   file.write(reinterpret_cast<char *>(&gdsiiRecord), sizeof(Record));
-  __int16 dataType = path->dataType;
+  int16_t dataType = path->dataType;
   DeNormalize_WORD(dataType);
-  file.write(reinterpret_cast<char *>(&dataType), sizeof(__int16));
+  file.write(reinterpret_cast<char *>(&dataType), sizeof(int16_t));
   // DATATYPE
   gdsiiRecord.recordType = rt_PATHTYPE;
-  gdsiiRecord.length = sizeof(Record) + sizeof(__int16);
+  gdsiiRecord.length = sizeof(Record) + sizeof(int16_t);
   gdsiiRecord.dataType = 2;
   DeNormalize_WORD(gdsiiRecord.length);
   file.write(reinterpret_cast<char *>(&gdsiiRecord), sizeof(Record));
-  __int16 pathType = path->pathType;
+  int16_t pathType = path->pathType;
   DeNormalize_WORD(pathType);
-  file.write(reinterpret_cast<char *>(&pathType), sizeof(__int16));
+  file.write(reinterpret_cast<char *>(&pathType), sizeof(int16_t));
   // WIDTH
   gdsiiRecord.recordType = rt_WIDTH;
-  gdsiiRecord.length = sizeof(Record) + sizeof(__int32);
+  gdsiiRecord.length = sizeof(Record) + sizeof(int32_t);
   gdsiiRecord.dataType = 3;
   DeNormalize_WORD(gdsiiRecord.length);
   file.write(reinterpret_cast<char *>(&gdsiiRecord), sizeof(Record));
-  __int32 pathWidth = path->width;
+  int32_t pathWidth = path->width;
   DeNormalize_DWORD(pathWidth);
-  file.write(reinterpret_cast<char *>(&pathWidth), sizeof(__int32));
+  file.write(reinterpret_cast<char *>(&pathWidth), sizeof(int32_t));
   // XY
   gdsiiRecord.recordType = rt_XY;
-  gdsiiRecord.length = sizeof(Record) + static_cast<__int16>(path->coords.size()) * sizeof(Coord);
+  gdsiiRecord.length = sizeof(Record) + static_cast<int16_t>(path->coords.size()) * sizeof(Coord);
   gdsiiRecord.dataType = 3;
   DeNormalize_WORD(gdsiiRecord.length);
   file.write(reinterpret_cast<char *>(&gdsiiRecord), sizeof(Record));

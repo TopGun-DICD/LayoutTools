@@ -7,13 +7,13 @@
 // [5] https://github.com/heitzmann/gdstk/blob/master/src/gdsii.h
 
 struct Record {
-  __int16 length;
-  __int8  recordType,
+  int16_t length;
+  int8_t  recordType,
           dataType;
 };
 
 struct DateTime {
-  __int16 year,
+  int16_t year,
           month,
           day,
           hour,

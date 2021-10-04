@@ -1,15 +1,15 @@
 #include "LayoutWriter.hpp"
 
-AbstractLayoutWriter::AbstractLayoutWriter() {}
+LayoutWriter::LayoutWriter() {}
 
-AbstractLayoutWriter *GetWriter(const std::string &format) {
+LayoutWriter *GetWriter(const std::string &format) {
   if (format == "gdsiibin")
-    return  new GDSIIBinaryWriter;
+    return  new LayoutWriter_GDSIIBin;
 
   return nullptr;
 }
 
-void FreeWriter(AbstractLayoutWriter *writer) {
+void FreeWriter(LayoutWriter *writer) {
   if (!writer)
     return;
   delete writer;

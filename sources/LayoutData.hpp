@@ -9,37 +9,37 @@ struct Units {
 };
 
 struct Coord {
-  __int32 x,
+  int32_t x,
           y;
 };
 
 struct Property {
-  __int16     index;
+  int16_t     index;
   std::string value;
 };
 
-enum ItemType {
-  it_undefined = 0,
-  it_boundary,
-  it_path,
-  it_text,
-  it_box,
-  it_structRef,
+enum class ItemType {
+  undefined = 0,
+  boundary,
+  path,
+  text,
+  box,
+  reference,
 };
 
-enum DataType {
-  dt_noData = 0,
-  dt_bitArray,
-  dt_WORD,
-  dt_DWORD,
-  dt_REAL,
-  dt_DOUBLE,
-  dt_ASCIISTRING,
+enum class DataType {
+  noData = 0,
+  bitArray,
+  WORD,
+  DWORD,
+  REAL,
+  DOUBLE,
+  ASCIISTRING,
 };
 
 struct GeometryItem {
   ItemType                    type;
-  __int16                     layer;
+  int16_t                     layer;
   std::vector<Property>       properties;
   std::vector<Coord>          coords;
 public:
@@ -47,35 +47,35 @@ public:
 };
 
 struct GeometryItem_Boundary : public GeometryItem {
-  __int16                     dataType;
+  int16_t                     dataType;
 public:
-  GeometryItem_Boundary() : GeometryItem(it_boundary), dataType(0) {}
+  GeometryItem_Boundary() : GeometryItem(ItemType::boundary), dataType(0) {}
 };
 
 struct GeometryItem_Path : public GeometryItem {
-  __int16                     dataType,
+  int16_t                     dataType,
                               pathType;
-  __int32                     width;
+  int32_t                     width;
 public:
-  GeometryItem_Path() : GeometryItem(it_path), dataType(0), pathType(0), width(0) {}
+  GeometryItem_Path() : GeometryItem(ItemType::path), dataType(0), pathType(0), width(0) {}
 };
 
 struct GeometryItem_Text : public GeometryItem {
-  __int16                     textType,
+  int16_t                     textType,
                               flagsPresentation,
                               pathType,
                               flagsTransformation;
   double                      magnification;
-  __int32                     width;
+  int32_t                     width;
   std::string                 stringValue;
 public:
-  GeometryItem_Text() : GeometryItem(it_text), textType(0), flagsPresentation(0), pathType(0), flagsTransformation(0), magnification(1.0), width(0) {}
+  GeometryItem_Text() : GeometryItem(ItemType::text), textType(0), flagsPresentation(0), pathType(0), flagsTransformation(0), magnification(1.0), width(0) {}
 };
 
 struct GeometryItem_Box : public GeometryItem {
-  __int16                     boxType;
+  int16_t                     boxType;
 public:
-  GeometryItem_Box() : GeometryItem(it_box), boxType(0) {}
+  GeometryItem_Box() : GeometryItem(ItemType::box), boxType(0) {}
 };
 
 struct Element;
@@ -83,10 +83,10 @@ struct Element;
 struct GeometryItem_StructureRef : public GeometryItem {
   std::string                 name;
   Element                    *pReference;
-  __int16                     transformationFlags;
+  int32_t                     transformationFlags;
   double                      magnification;
 public:
-  GeometryItem_StructureRef() : GeometryItem(it_structRef), name(""), pReference(nullptr), transformationFlags(0), magnification(1.0) {}
+  GeometryItem_StructureRef() : GeometryItem(ItemType::reference), name(""), pReference(nullptr), transformationFlags(0), magnification(1.0) {}
 };
 
 struct Element {
@@ -103,7 +103,7 @@ public:
 };
 
 struct Layer {
-  __int16                     layer;
+  int16_t                     layer;
   std::string                 name;
   std::vector<GeometryItem *> items;
 };

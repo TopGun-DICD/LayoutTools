@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cmath>
+#include <cstdint>
 
 // To access bits of a bit array
 #define  GET_BIT0 (data) (data & 0x001)
@@ -21,13 +22,13 @@
 #define  GET_BIT15(data) (data & 0x8000)
 
 union UNION_WORD {
-  __int16       value;
-  unsigned char byteArray[sizeof(__int16)];
+  int16_t       value;
+  unsigned char byteArray[sizeof(int16_t)];
 };
 
 union UNION_DWORD {
-  __int32       value;
-  unsigned char byteArray[sizeof(__int32)];
+  int32_t       value;
+  unsigned char byteArray[sizeof(int32_t)];
 };
 
 union UNION_DOUBLE {
@@ -35,11 +36,11 @@ union UNION_DOUBLE {
   unsigned char byteArray[sizeof(double)];
 };
 
-void Normalize_WORD(__int16 &_value);
-void DeNormalize_WORD(__int16 &_value);
+void Normalize_WORD(int16_t &_value);
+void DeNormalize_WORD(int16_t &_value);
 
-void Normalize_DWORD(__int32 &_value);
-void DeNormalize_DWORD(__int32 &_value);
+void Normalize_DWORD(int32_t &_value);
+void DeNormalize_DWORD(int32_t &_value);
 
 void Normalize_DOUBLE(double &_value);
 void DeNormalize_DOUBLE(double &_value);
