@@ -101,22 +101,25 @@ private:
   bool ResolveReferences();
 };
 
-class LayoutReader_MSK :public LayoutReader {
-  Library      *p_active_library;
-  Element      *p_active_element;
-  GeometryItem *p_active_geometry_item;
+class LayoutReader_MSK:public AbstractLayoutReader
+{
+private:
+	Library*			p_active_library;
+	Element*			p_active_element;
+	GeometryItem*       p_active_geometry_item;
 
 public:
-  LayoutReader_MSK() :p_active_library(nullptr), p_active_element(nullptr), p_active_geometry_item(nullptr) {}
-public:
-  bool            IsMyFormat(const std::string& fName) override final;
-  bool            Read(LayoutData* layout) override final;
+	LayoutReader_MSK() :p_active_library(nullptr),p_active_element(nullptr),p_active_geometry_item(nullptr) {}
+
+	bool             IsMyFormat(const std::string& fName) override final;
+	bool             Read(LayoutData* layout) override final;
 private:
-  inline bool     read_Bounding_box_coords(const std::string& line, Coord& left_bot, Coord& right_top);
-  inline bool     read_Rectangle_coords(const std::string& line, Coord& left_bot, Coord& right_top, std::string& layer_name);
-  void		        fill_GeometryItem_box(GeometryItem* filling_box, const Coord& right_top, const Coord& left_bot);
-  inline int32_t  calculate_delta(const int32_t first, const int32_t second);
-  int16_t		      my_index_find(const std::unordered_set<std::string>& current_set, const std::string& str);
+	inline bool      read_Rectangle_coords(const std::string& line, Coord& left_bot, Coord& right_top, std::string& layer_name);
+	void		     fill_GeometryItem_box(GeometryItem* filling_box, const Coord& right_top, const Coord& left_bot, const uint16_t layer_num);
+	inline int32_t   calculate_delta(const int32_t first, const int32_t second);
+	int16_t			 calculate_MSK_layer_num(const std::string& layer_name);
+	inline int32_t   find_layer_num(const std::vector <Layer>& all_layers, const uint16_t layer_num);
+	std::string      receive_element_name();
 
 };
 
