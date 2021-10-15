@@ -13,7 +13,7 @@ bool LayoutReader_MSK::IsMyFormat(const std::string& fName)
     size_t comma_pos = fName.find_last_of(".");
     if (comma_pos == std::string::npos)
         return false;
-    fileName = fName;
+        fileName = fName;
     std::string file_extention = fName.substr(comma_pos + 1, fName.length() - comma_pos);
 
     if (file_extention == "MSK")
@@ -21,82 +21,107 @@ bool LayoutReader_MSK::IsMyFormat(const std::string& fName)
     if (file_extention == "msk")
         return true;
 
+
     return false;
+}
+
+int16_t	LayoutReader_MSK::calculate_MSK_layer_num(const std::string& layer_name)
+{
+    std::unordered_map <std::string, int16_t> all_layers =
+    {
+        {"NW",1},
+        {"DN",16},
+        {"DP",17},
+        {"PO",13},
+        {"CO",19},
+        //{"P2",2},
+        {"ME",23},
+        {"M2",27},
+        {"M3",34},
+        {"M4",36},
+        {"M5",53},
+        {"M6",55},
+    };
+    auto it = all_layers.find(layer_name);
+    if (it == all_layers.end())
+        return -1;
+    return it->second;
+    
+}
+inline int32_t LayoutReader_MSK::find_layer_num(const std::vector <Layer>& all_layers, const uint16_t layer_num)
+{
+    for (size_t i = 0; i < all_layers.size(); i++)
+    {
+        if (all_layers[i].layer == layer_num)
+        {
+            return i;
+        }
+    }
+
+    return -1;
+}
+std::string LayoutReader_MSK::receive_element_name()
+{
+    const std::string &temp_fName = fileName;
+    const size_t last_comma_pos = temp_fName.find_last_of(".");
+    const size_t start_name_pos = temp_fName.find_last_of("/");
+    if (start_name_pos == std::string::npos)
+        return temp_fName.substr(0, last_comma_pos);
+    else return temp_fName.substr(start_name_pos+1, last_comma_pos-start_name_pos-1);//0 С‚РµСЂРјРёРЅР°С‚РѕСЂ, 3 СЃРёРјРІРѕР»Р° РїРѕРґ СЂР°СЃС€РёСЂРµРЅРёРµ Рё 1 РїРѕРґ С‚РѕС‡РєСѓ
+
 }
 bool LayoutReader_MSK::Read(LayoutData* layout)
 {
+
     if (!layout)
         return false;
 
     file.open(fileName);
     if (!file.is_open())
         return false;
-
     p_data = layout;
   
     p_active_library = new Library;
     p_active_element = new Element;
-
+    
     p_data->fileName = this->fileName;
-    p_active_element->name = this->fileName;
+    p_active_element->name = receive_element_name();
     p_active_library->name = this->fileName;
-    //Переменная для хранения одной строки из файла
+    //РџРµСЂРµРјРµРЅРЅР°СЏ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ РѕРґРЅРѕР№ СЃС‚СЂРѕРєРё РёР· С„Р°Р№Р»Р°
     std::string line_from_file;
-    //Множество названий всех слоев
-    std::unordered_set <std::string> all_layer_names;
-    //Переменная для проверки корректности ввода
-    bool is_Bounding_Box_filled = false;
-
-    while (std::getline(file,line_from_file))
+    while (std::getline(file, line_from_file))
     {
         Coord left_bot;
         Coord right_top;
         std::string layer_name;
 
-        if (!is_Bounding_Box_filled)
+        if (read_Rectangle_coords(line_from_file, left_bot, right_top, layer_name))
         {
-            if (read_Bounding_box_coords(line_from_file, left_bot, right_top))
-            {
-               
-                const std::string BB_name = "BB";
-                GeometryItem* current_box = new GeometryItem_Box;
-                fill_GeometryItem_box(current_box, left_bot, right_top);
-                p_active_element->items.push_back(current_box);
-
-                Layer BB_layer;
-                BB_layer.layer = static_cast<int16_t>(all_layer_names.size() + 1);
-                BB_layer.name = BB_name;
-                BB_layer.items.push_back(current_box);
-                all_layer_names.insert(BB_name);
-
-                p_active_library->layers.push_back(BB_layer);
-                is_Bounding_Box_filled = true;
-            }
-
-        }
-        else if (read_Rectangle_coords(line_from_file, left_bot, right_top, layer_name))
-        {
+            bool is_layer_exist = true;
             GeometryItem* current_box = new GeometryItem_Box;
-            fill_GeometryItem_box(current_box, left_bot, right_top);
+            const int16_t layer_num = calculate_MSK_layer_num(layer_name);
+            if (layer_num == -1) is_layer_exist = false;
+
+
+            fill_GeometryItem_box(current_box, left_bot, right_top, layer_num);
             p_active_element->items.push_back(current_box);
 
+            const int32_t founded_index = find_layer_num(p_active_library->layers, layer_num);
 
-            const int16_t founded_index = my_index_find(all_layer_names, layer_name);
-            if (founded_index == -1)
+            if (founded_index == -1 && is_layer_exist)
             {
                 Layer current_layer;
-                current_layer.layer = static_cast<int16_t>(all_layer_names.size() + 1);
+                current_layer.layer = current_box->layer;
                 current_layer.name = layer_name;
                 current_layer.items.push_back(current_box);
-                all_layer_names.insert(layer_name);
                 p_active_library->layers.push_back(current_layer);
             }
-            else
+            else if(is_layer_exist)
             {
                 p_active_library->layers.at(founded_index).items.push_back(current_box);
             }
-            
         }
+        
 
 
 
@@ -107,20 +132,11 @@ bool LayoutReader_MSK::Read(LayoutData* layout)
     p_active_library->elements.push_back(p_active_element);
     p_data->libraries.push_back(p_active_library);
    
-    
     file.close();
     return true;
     
 }
 
-
-
-inline bool LayoutReader_MSK::read_Bounding_box_coords(const std::string& line, Coord& left_bot, Coord& right_top)
-{
-    if (!sscanf_s(line.c_str(), "BB(%d,%d,%d,%d)", &left_bot.x, &left_bot.y, &right_top.x, &right_top.y))
-        return false;
-    return true;
-}
 
 inline bool LayoutReader_MSK::read_Rectangle_coords(const std::string& line, Coord& left_bot, Coord& right_top, std::string& layer_name)
 {
@@ -142,7 +158,7 @@ inline bool LayoutReader_MSK::read_Rectangle_coords(const std::string& line, Coo
     return true;
 }
 
-void LayoutReader_MSK::fill_GeometryItem_box(GeometryItem* filling_box, const Coord& left_bot, const Coord& right_top)
+void LayoutReader_MSK::fill_GeometryItem_box(GeometryItem* filling_box, const Coord& left_bot, const Coord& right_top, const uint16_t layer_num)
 {
     Coord curr_coord;
     int32_t dx = calculate_delta(left_bot.x, right_top.x);
@@ -171,27 +187,13 @@ void LayoutReader_MSK::fill_GeometryItem_box(GeometryItem* filling_box, const Co
     curr_coord.y = right_top.y;
     filling_box->coords.push_back(curr_coord);
 
+    filling_box->layer = layer_num;
     
 
     
 }
 
-inline int32_t LayoutReader_MSK::calculate_delta(const int32_t first,const int32_t second) {
-    return second - first;
-}
-
-int16_t LayoutReader_MSK::my_index_find(const std::unordered_set<std::string>& current_set, const std::string& str)
+inline int32_t LayoutReader_MSK::calculate_delta(const int32_t first,const int32_t second)
 {
-    uint16_t index_find_str = 0;
-
-    for (auto i = current_set.begin(); i != current_set.end(); i++)
-    {
-        if (str == *i)
-        {
-            return index_find_str;
-        }
-        index_find_str++;
-    }
-
-    return -1;
+    return second - first;
 }
