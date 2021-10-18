@@ -1,9 +1,9 @@
 #include "LayoutReader.hpp"
 
-LayoutReader::LayoutReader() : p_data(nullptr) {}
+BaseLayoutReader::BaseLayoutReader() : p_data(nullptr) {}
 
-LayoutReader *GetReader(const std::string &fName) {
-  LayoutReader *p_reader = nullptr;
+BaseLayoutReader *GetReader(const std::string &fName) {
+  BaseLayoutReader *p_reader = nullptr;
 
   p_reader = new LayoutReader_GDSIIBin;
   if (p_reader->IsMyFormat(fName))
@@ -20,7 +20,7 @@ LayoutReader *GetReader(const std::string &fName) {
   return p_reader;
 }
 
-void FreeReader(LayoutReader *reader) {
+void FreeReader(BaseLayoutReader *reader) {
   if (!reader)
     return;
   delete reader;

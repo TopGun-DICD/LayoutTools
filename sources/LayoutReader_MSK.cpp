@@ -8,6 +8,8 @@
 #include "LayoutReader.hpp"
 #define _CRT_SECURE_NO_WARNINGS
 
+#include <unordered_map>
+
 bool LayoutReader_MSK::IsMyFormat(const std::string& fName)
 {
     size_t comma_pos = fName.find_last_of(".");
@@ -54,7 +56,7 @@ inline int32_t LayoutReader_MSK::find_layer_num(const std::vector <Layer>& all_l
     {
         if (all_layers[i].layer == layer_num)
         {
-            return i;
+            return static_cast<int32_t>(i);
         }
     }
 
@@ -98,13 +100,13 @@ bool LayoutReader_MSK::Read(LayoutData* layout)
         if (read_Rectangle_coords(line_from_file, left_bot, right_top, layer_name))
         {
             bool is_layer_exist = true;
-            GeometryItem* current_box = new GeometryItem_Box;
+            Geometry* current_box = new Rectangle;
             const int16_t layer_num = calculate_MSK_layer_num(layer_name);
             if (layer_num == -1) is_layer_exist = false;
 
 
             fill_GeometryItem_box(current_box, left_bot, right_top, layer_num);
-            p_active_element->items.push_back(current_box);
+            p_active_element->geometries.push_back(current_box);
 
             const int32_t founded_index = find_layer_num(p_active_library->layers, layer_num);
 
@@ -113,12 +115,12 @@ bool LayoutReader_MSK::Read(LayoutData* layout)
                 Layer current_layer;
                 current_layer.layer = current_box->layer;
                 current_layer.name = layer_name;
-                current_layer.items.push_back(current_box);
+                current_layer.geometries.push_back(current_box);
                 p_active_library->layers.push_back(current_layer);
             }
             else if(is_layer_exist)
             {
-                p_active_library->layers.at(founded_index).items.push_back(current_box);
+                p_active_library->layers.at(founded_index).geometries.push_back(current_box);
             }
         }
         
@@ -158,7 +160,7 @@ inline bool LayoutReader_MSK::read_Rectangle_coords(const std::string& line, Coo
     return true;
 }
 
-void LayoutReader_MSK::fill_GeometryItem_box(GeometryItem* filling_box, const Coord& left_bot, const Coord& right_top, const uint16_t layer_num)
+void LayoutReader_MSK::fill_GeometryItem_box(Geometry* filling_box, const Coord& left_bot, const Coord& right_top, const uint16_t layer_num)
 {
     Coord curr_coord;
     int32_t dx = calculate_delta(left_bot.x, right_top.x);

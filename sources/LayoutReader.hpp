@@ -15,22 +15,22 @@
 #include "LayoutData.hpp"
 #include "GDSIITypes.hpp"
 
-class LayoutReader {
+class BaseLayoutReader {
 protected:
   std::string   fileName;
   LayoutData   *p_data;
   std::ifstream file;
 public:
-  LayoutReader();
+  BaseLayoutReader();
 public:
   virtual bool IsMyFormat(const std::string &fName) = 0;
   virtual bool Read(LayoutData *layout) = 0;
 };
 
-class LayoutReader_GDSIIBin : public LayoutReader {
+class LayoutReader_GDSIIBin : public BaseLayoutReader {
   Library      *p_activeLibrary;
   Element      *p_activeElement;
-  GeometryItem *p_activeItem;
+  Geometry     *p_activeGeometry;
 public:
   LayoutReader_GDSIIBin();
 public:
@@ -101,27 +101,27 @@ private:
   bool ResolveReferences();
 };
 
-class LayoutReader_MSK:public AbstractLayoutReader
+class LayoutReader_MSK:public BaseLayoutReader
 {
 private:
 	Library*			p_active_library;
 	Element*			p_active_element;
-	GeometryItem*       p_active_geometry_item;
+	Geometry*     p_active_geometry_item;
 
 public:
 	LayoutReader_MSK() :p_active_library(nullptr),p_active_element(nullptr),p_active_geometry_item(nullptr) {}
 
-	bool             IsMyFormat(const std::string& fName) override final;
-	bool             Read(LayoutData* layout) override final;
+	bool            IsMyFormat(const std::string& fName) override final;
+	bool            Read(LayoutData* layout) override final;
 private:
-	inline bool      read_Rectangle_coords(const std::string& line, Coord& left_bot, Coord& right_top, std::string& layer_name);
-	void		     fill_GeometryItem_box(GeometryItem* filling_box, const Coord& right_top, const Coord& left_bot, const uint16_t layer_num);
-	inline int32_t   calculate_delta(const int32_t first, const int32_t second);
-	int16_t			 calculate_MSK_layer_num(const std::string& layer_name);
-	inline int32_t   find_layer_num(const std::vector <Layer>& all_layers, const uint16_t layer_num);
-	std::string      receive_element_name();
+	inline bool     read_Rectangle_coords(const std::string& line, Coord& left_bot, Coord& right_top, std::string& layer_name);
+	void            fill_GeometryItem_box(Geometry* filling_box, const Coord& right_top, const Coord& left_bot, const uint16_t layer_num);
+	inline int32_t  calculate_delta(const int32_t first, const int32_t second);
+	int16_t         calculate_MSK_layer_num(const std::string& layer_name);
+	inline int32_t  find_layer_num(const std::vector <Layer>& all_layers, const uint16_t layer_num);
+	std::string     receive_element_name();
 
 };
 
-LayoutReader *GetReader(const std::string &fName);
-void FreeReader(LayoutReader *ptr);
+BaseLayoutReader *GetReader(const std::string &fName);
+void FreeReader(BaseLayoutReader *ptr);

@@ -40,16 +40,16 @@ bool LayoutWriter_GDSIIBin::Write(std::string fileName, LayoutData *layout) {
       WriteSection_BEGINSTRUCTURE(layout->libraries[i]->elements[j]);
       WriteSection_STRNAME(layout->libraries[i]->elements[j]);
 
-      for (size_t k = 0; k < layout->libraries[i]->elements[j]->items.size(); ++k) {
-        switch (layout->libraries[i]->elements[j]->items[k]->type) {
-          case ItemType::boundary:
-            WriteSection_BOUNDARY(reinterpret_cast<GeometryItem_Boundary *>(layout->libraries[i]->elements[j]->items[k]));
+      for (size_t k = 0; k < layout->libraries[i]->elements[j]->geometries.size(); ++k) {
+        switch (layout->libraries[i]->elements[j]->geometries[k]->type) {
+          case GeometryType::polygon:
+            WriteSection_BOUNDARY(reinterpret_cast<Polygon *>(layout->libraries[i]->elements[j]->geometries[k]));
             break;
-          case ItemType::reference:
-            WriteSection_SREF(reinterpret_cast<GeometryItem_StructureRef *>(layout->libraries[i]->elements[j]->items[k]));
+          case GeometryType::reference:
+            WriteSection_SREF(reinterpret_cast<Reference *>(layout->libraries[i]->elements[j]->geometries[k]));
             break;
-          case ItemType::path:
-            WriteSection_PATH(reinterpret_cast<GeometryItem_Path *>(layout->libraries[i]->elements[j]->items[k]));
+          case GeometryType::path:
+            WriteSection_PATH(reinterpret_cast<Path *>(layout->libraries[i]->elements[j]->geometries[k]));
             break;
         }
       }
@@ -182,7 +182,7 @@ void LayoutWriter_GDSIIBin::WriteSection_ENDSTRUCTURE(Element *element) {
   file.write(reinterpret_cast<char *>(&gdsiiRecord), sizeof(Record));
 }
 
-void LayoutWriter_GDSIIBin::WriteSection_BOUNDARY(GeometryItem_Boundary *boundary) {
+void LayoutWriter_GDSIIBin::WriteSection_BOUNDARY(Polygon *boundary) {
   Record gdsiiRecord = { sizeof(Record) , rt_BOUNDARY , 0 };
   // Write Header
   DeNormalize_WORD(gdsiiRecord.length);
@@ -225,7 +225,7 @@ void LayoutWriter_GDSIIBin::WriteSection_BOUNDARY(GeometryItem_Boundary *boundar
   file.write(reinterpret_cast<char *>(&gdsiiRecord), sizeof(Record));
 }
 
-void LayoutWriter_GDSIIBin::WriteSection_SREF(GeometryItem_StructureRef *reference) {
+void LayoutWriter_GDSIIBin::WriteSection_SREF(Reference *reference) {
   Record gdsiiRecord = { sizeof(Record) , rt_SREF , 0 };
   // Write Header
   DeNormalize_WORD(gdsiiRecord.length);
@@ -263,7 +263,7 @@ void LayoutWriter_GDSIIBin::WriteSection_SREF(GeometryItem_StructureRef *referen
   file.write(reinterpret_cast<char *>(&gdsiiRecord), sizeof(Record));
 }
 
-void LayoutWriter_GDSIIBin::WriteSection_PATH(GeometryItem_Path *path) {
+void LayoutWriter_GDSIIBin::WriteSection_PATH(Path *path) {
   Record gdsiiRecord = { sizeof(Record) , rt_PATH , 0 };
   // Write Header
   DeNormalize_WORD(gdsiiRecord.length);

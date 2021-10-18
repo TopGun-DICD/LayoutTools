@@ -34,9 +34,9 @@ private:
 
   void WriteSection_ENDSTRUCTURE(Element *element);
 
-  void WriteSection_BOUNDARY(GeometryItem_Boundary *boundary);
-  void WriteSection_SREF(GeometryItem_StructureRef *reference);
-  void WriteSection_PATH(GeometryItem_Path *path);
+  void WriteSection_BOUNDARY(Polygon *boundary);
+  void WriteSection_SREF(Reference *reference);
+  void WriteSection_PATH(Path *path);
 };
 
 LayoutWriter *GetWriter(const std::string &format);

@@ -18,12 +18,12 @@ struct Property {
   std::string value;
 };
 
-enum class ItemType {
+enum class GeometryType {
   undefined = 0,
-  boundary,
+  polygon,
   path,
   text,
-  box,
+  rectangle,
   reference,
 };
 
@@ -37,82 +37,82 @@ enum class DataType {
   ASCIISTRING,
 };
 
-struct GeometryItem {
-  ItemType                    type;
-  int16_t                     layer;
-  std::vector<Property>       properties;
-  std::vector<Coord>          coords;
+struct Geometry {
+  GeometryType          type;
+  int16_t               layer;
+  std::vector<Property> properties;
+  std::vector<Coord>    coords;
 public:
-  GeometryItem(ItemType t) : type(t), layer(-1) {}
+  Geometry(GeometryType t) : type(t), layer(-1) {}
 };
 
-struct GeometryItem_Boundary : public GeometryItem {
-  int16_t                     dataType;
+struct Polygon : public Geometry {
+  int16_t               dataType;
 public:
-  GeometryItem_Boundary() : GeometryItem(ItemType::boundary), dataType(0) {}
+  Polygon() : Geometry(GeometryType::polygon), dataType(0) {}
 };
 
-struct GeometryItem_Path : public GeometryItem {
-  int16_t                     dataType,
-                              pathType;
-  int32_t                     width;
+struct Path : public Geometry {
+  int16_t               dataType,
+                        pathType;
+  int32_t               width;
 public:
-  GeometryItem_Path() : GeometryItem(ItemType::path), dataType(0), pathType(0), width(0) {}
+  Path() : Geometry(GeometryType::path), dataType(0), pathType(0), width(0) {}
 };
 
-struct GeometryItem_Text : public GeometryItem {
-  int16_t                     textType,
-                              flagsPresentation,
-                              pathType,
-                              flagsTransformation;
-  double                      magnification;
-  int32_t                     width;
-  std::string                 stringValue;
+struct Text : public Geometry {
+  int16_t                textType,
+                         flagsPresentation,
+                         pathType,
+                         flagsTransformation;
+  double                 magnification;
+  int32_t                width;
+  std::string            stringValue;
 public:
-  GeometryItem_Text() : GeometryItem(ItemType::text), textType(0), flagsPresentation(0), pathType(0), flagsTransformation(0), magnification(1.0), width(0) {}
+  Text() : Geometry(GeometryType::text), textType(0), flagsPresentation(0), pathType(0), flagsTransformation(0), magnification(1.0), width(0) {}
 };
 
-struct GeometryItem_Box : public GeometryItem {
-  int16_t                     boxType;
+struct Rectangle : public Geometry {
+  int16_t                rectType;
 public:
-  GeometryItem_Box() : GeometryItem(ItemType::box), boxType(0) {}
+  Rectangle() : Geometry(GeometryType::rectangle), rectType(0) {}
 };
 
 struct Element;
 
-struct GeometryItem_StructureRef : public GeometryItem {
-  std::string                 name;
-  Element                    *pReference;
-  int32_t                     transformationFlags;
-  double                      magnification;
+struct Reference : public Geometry {
+  std::string             name;
+  Element                *pElement;
+  int32_t                 transformationFlags;
+  double                  magnification;
 public:
-  GeometryItem_StructureRef() : GeometryItem(ItemType::reference), name(""), pReference(nullptr), transformationFlags(0), magnification(1.0) {}
+  Reference() : Geometry(GeometryType::reference), name(""), pElement(nullptr), transformationFlags(0), magnification(1.0) {}
 };
 
 struct Element {
-  std::string                 name;
-  std::vector<GeometryItem *> items;
+  std::string             name;
+  std::vector<Geometry *> geometries;
 public:
   ~Element() {
-    for (size_t i = 0; i < items.size(); ++i) {
-      delete items[i];
-      items[i] = nullptr;
+    for (size_t i = 0; i < geometries.size(); ++i) {
+      delete geometries[i];
+      geometries[i] = nullptr;
     }
-    items.clear();
+    geometries.clear();
   }
 };
 
 struct Layer {
-  int16_t                     layer;
-  std::string                 name;
-  std::vector<GeometryItem *> items;
+  int16_t                 layer;
+  std::string             name;
+  std::vector<Geometry *> geometries;
 };
 
 struct Library {
-  std::string                 name;
-  Units                       units;
-  std::vector<Element *>      elements;
-  std::vector<Layer>          layers;
+  std::string             name;
+  Units                   units;
+  std::vector<Element *>  elements;
+  std::vector<Layer>      layers;
 public:
   ~Library() {
     for (size_t i = 0; i < elements.size(); ++i) {
@@ -125,8 +125,8 @@ public:
 };
 
 struct LayoutData {
-  std::string                 fileName;
-  std::vector<Library *>      libraries;
+  std::string             fileName;
+  std::vector<Library *>  libraries;
 public:
   ~LayoutData() {
     for (size_t i = 0; i < libraries.size(); ++i) {

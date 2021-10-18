@@ -7,15 +7,15 @@
 int main(int argc, char *argv[]) {
   LayoutData  layout;
 
-  //std::string fileName = "tests/inv.gds";
+  std::string fileName = "tests/inv.gds";
   //std::string fileName = "output.gds";
   //std::string fileName = "tests/nand2.gds";
   //std::string fileName = "tests/xor.gds";
   //std::string fileName = "tests/1Kpolyg.gds";
   //std::string fileName = "tests/testDesign.gds";
-  std::string fileName = "tests/cmos.msk";
+  //std::string fileName = "tests/cmos.msk";
 
-  LayoutReader *p_reader = GetReader(fileName);
+  BaseLayoutReader *p_reader = GetReader(fileName);
   if (!p_reader) {
     std::cerr << "__err__ : Can't file appropriate reader for given file '" << fileName << "'." << std::endl;
     return EXIT_FAILURE;
@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
   for (size_t i = 0; i < layout.libraries.size(); ++i) {
     std::cout << "  - Library [" << i << "] has name '" << layout.libraries[i]->name << "' and contains " << layout.libraries[i]->elements.size() << " elements:" << std::endl;
     for(size_t j = 0; j < layout.libraries[i]->elements.size(); ++j)
-      std::cout << "      * " << layout.libraries[i]->elements[j]->name << " (contains " << layout.libraries[i]->elements[j]->items.size() << " geometries)" << std::endl;
+      std::cout << "      * " << layout.libraries[i]->elements[j]->name << " (contains " << layout.libraries[i]->elements[j]->geometries.size() << " geometries)" << std::endl;
     std::cout << "    Library [" << i << "] also contains " << layout.libraries[i]->layers.size() << " layers (in order of appearance):" << std::endl;
     std::cout << "      { ";
     for (size_t j = 0; j < layout.libraries[i]->layers.size(); ++j)
