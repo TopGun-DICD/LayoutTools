@@ -5,7 +5,7 @@
  * 02.10.2021
  */
 
-#include "LayoutReader.hpp"
+#include "LayoutReader_MSK.hpp"
 #define _CRT_SECURE_NO_WARNINGS
 
 #include <unordered_map>
@@ -18,13 +18,24 @@ bool LayoutReader_MSK::IsMyFormat(const std::string& fName)
         fileName = fName;
     std::string file_extention = fName.substr(comma_pos + 1, fName.length() - comma_pos);
 
-    if (file_extention == "MSK")
-        return true;
-    if (file_extention == "msk")
-        return true;
+    if (file_extention != "MSK")
+        if (file_extention != "msk")
+            return false;
 
+    file.open(fName, std::ios::in);
+    std::string line;
 
-    return false;
+    std::getline(file, line);
+    if (line.length() < 7) {
+      file.close();
+      return false;
+    }
+    if (line.substr(0, 7) != "VERSION") {
+      file.close();
+      return false;
+    }
+    file.close();
+    return true;
 }
 
 int16_t	LayoutReader_MSK::calculate_MSK_layer_num(const std::string& layer_name)
@@ -74,7 +85,6 @@ std::string LayoutReader_MSK::receive_element_name()
 }
 bool LayoutReader_MSK::Read(LayoutData* layout)
 {
-
     if (!layout)
         return false;
 
@@ -123,11 +133,6 @@ bool LayoutReader_MSK::Read(LayoutData* layout)
                 p_active_library->layers.at(founded_index).geometries.push_back(current_box);
             }
         }
-        
-
-
-
-        
 
     }
   
@@ -135,6 +140,10 @@ bool LayoutReader_MSK::Read(LayoutData* layout)
     p_data->libraries.push_back(p_active_library);
    
     file.close();
+
+    layout->fileName = fileName;
+    layout->fileFormat = LayoutFileFormat::MSK;
+
     return true;
     
 }

@@ -6,7 +6,7 @@
 // [4] https://gitlab.com/stone.code/liblayout/-/blob/master/gdsii_write.cpp
 // [5] https://github.com/heitzmann/gdstk/blob/master/src/gdsii.h
 
-struct Record {
+struct GDSIIRecord {
   int16_t length;
   int8_t  recordType,
           dataType;
@@ -21,6 +21,15 @@ struct DateTime {
           second;
 };
 
+enum DataType {
+  noData = 0,
+  bitArray,
+  WORD,
+  DWORD,
+  REAL,
+  DOUBLE,
+  ASCIISTRING,
+};
 
 enum RecordType {
   rt_HEADER       = 0x00,
@@ -52,8 +61,8 @@ enum RecordType {
   rt_STRANS       = 0x1A,
   rt_MAG          = 0x1B,
   rt_ANGLE        = 0x1C,
-  rt_LINKTYPE     = 0x1D, // or UNUSED ??? [2]
-  rt_LINKKEYS     = 0x1E, // or UNUSED ??? [2]
+  //rt_LINKTYPE     = 0x1D, // or UNUSED ??? [2]
+  //rt_LINKKEYS     = 0x1E, // or UNUSED ??? [2]
   rt_REFLIBS      = 0x1F,
   rt_FONTS        = 0x20,
   rt_PATHTYPE     = 0x21,

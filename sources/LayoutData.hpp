@@ -27,16 +27,6 @@ enum class GeometryType {
   reference,
 };
 
-enum class DataType {
-  noData = 0,
-  bitArray,
-  WORD,
-  DWORD,
-  REAL,
-  DOUBLE,
-  ASCIISTRING,
-};
-
 struct Geometry {
   GeometryType          type;
   int16_t               layer;
@@ -114,7 +104,11 @@ struct Library {
   std::vector<Element *>  elements;
   std::vector<Layer>      layers;
 public:
-  ~Library() {
+  Library() {
+    units.user = 0.001;
+    units.physical = 1e-9;
+  }
+ ~Library() {
     for (size_t i = 0; i < elements.size(); ++i) {
       delete elements[i];
       elements[i] = nullptr;
@@ -124,9 +118,17 @@ public:
   }
 };
 
+enum class LayoutFileFormat {
+  GDSIIbin,
+  GDSIIascii,
+  MSK,
+  CIF,
+};
+
 struct LayoutData {
   std::string             fileName;
   std::vector<Library *>  libraries;
+  LayoutFileFormat        fileFormat;
 public:
   ~LayoutData() {
     for (size_t i = 0; i < libraries.size(); ++i) {

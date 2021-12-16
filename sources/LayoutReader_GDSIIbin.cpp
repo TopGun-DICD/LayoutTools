@@ -1,30 +1,49 @@
 /*
- * LayoutReader_GDSIIBin.cpp
+ * LayoutReader_GDSIIbin.cpp
  *
  * Calma binary GDS II file format reader by Dmitry A. Bulakh
  * 20.03.2021
  */
 
-#include "LayoutReader.hpp"
+#include "LayoutReader_GDSIIbin.hpp"
 #include "GDSIIHelperFunctions.hpp"
 
 #include <ctime>
 
-LayoutReader_GDSIIBin::LayoutReader_GDSIIBin() : p_activeLibrary(nullptr), p_activeElement(nullptr), p_activeGeometry(nullptr) {
+LayoutReader_GDSIIbin::LayoutReader_GDSIIbin() : p_activeLibrary(nullptr), p_activeElement(nullptr), p_activeGeometry(nullptr) {
 }
 
-bool LayoutReader_GDSIIBin::IsMyFormat(const std::string &fName) {
+bool LayoutReader_GDSIIbin::IsMyFormat(const std::string &fName) {
   fileName = fName;
 
-  if (fileName.substr(fileName.find_last_of(".") + 1) == "gds")
-    return true;
-  if (fileName.substr(fileName.find_last_of(".") + 1) == "gdsii")
-    return true;
+  if (fileName.substr(fileName.find_last_of(".") + 1) != "gds")
+    if (fileName.substr(fileName.find_last_of(".") + 1) != "gdsii")
+      return false;
 
-  return false;
+  file.open(fileName, std::ios::in | std::ios::binary);
+  if (!file.is_open())
+    return false;
+  GDSIIRecord gdsiiRecord;
+  file.read(reinterpret_cast<char*>(&gdsiiRecord), sizeof(GDSIIRecord));
+  Normalize_WORD(gdsiiRecord.length);
+  gdsiiRecord.length -= sizeof(GDSIIRecord);
+  if (gdsiiRecord.recordType != rt_HEADER || gdsiiRecord.dataType != DataType::WORD || gdsiiRecord.length != 2) {
+    file.close();
+    return false;
+  }
+  file.seekg(gdsiiRecord.length, std::ios_base::cur);
+  file.read(reinterpret_cast<char*>(&gdsiiRecord), sizeof(GDSIIRecord));
+  Normalize_WORD(gdsiiRecord.length);
+  gdsiiRecord.length -= sizeof(GDSIIRecord);
+  if (gdsiiRecord.recordType != rt_BGNLIB || gdsiiRecord.dataType != DataType::WORD || gdsiiRecord.length != 24) {
+    file.close();
+    return false;
+  }
+  file.close();
+  return true;
 }
 
-bool LayoutReader_GDSIIBin::Read(LayoutData *layout) {
+bool LayoutReader_GDSIIbin::Read(LayoutData *layout) {
   if (!layout)
     return false;
 
@@ -38,14 +57,14 @@ bool LayoutReader_GDSIIBin::Read(LayoutData *layout) {
 
   int inFileposition = 0;
 
-  Record gdsiiRecord;
+  GDSIIRecord gdsiiRecord;
   while (true) {
 
-    file.read(reinterpret_cast<char *>(&gdsiiRecord), sizeof(Record));
+    file.read(reinterpret_cast<char *>(&gdsiiRecord), sizeof(GDSIIRecord));
     if (file.eof())
       break;
     Normalize_WORD(gdsiiRecord.length);
-    gdsiiRecord.length -= sizeof(Record);
+    gdsiiRecord.length -= sizeof(GDSIIRecord);
 
     //inFileposition += gdsiiRecord.length;
 
@@ -93,22 +112,22 @@ bool LayoutReader_GDSIIBin::Read(LayoutData *layout) {
       // UNUSED
       //case rt_NODETYPE    : ReadSection_NODETYPE(gdsiirecord);        break;
       case rt_PROPATTR    : ReadSection_PROPATTR(gdsiiRecord);        break;
-        //void ReadSection_PROPVALUE(Record &_record);
+      //case rt_PROPVALUE   : ReadSection_PROPVALUE(GDSIIRecord &_record);   break;
       case rt_BOX         : ReadSection_BOX(gdsiiRecord);             break;
       case rt_BOXTYPE     : ReadSection_BOXTYPE(gdsiiRecord);         break;
-        //void ReadSection_PLEX(Record &_record);
-        //void ReadSection_BGNEXTN(Record &_record);
-        //void ReadSection_ENDTEXTN(Record &_record);
-        //void ReadSection_TAPENUM(Record &_record);
-        //void ReadSection_TAPECODE(Record &_record);
-        //void ReadSection_STRCLASS(Record &_record);
-        //void ReadSection_RESERVED(Record &_record);
-        //void ReadSection_FORMAT(Record &_record);
-        //void ReadSection_MASK(Record &_record);
-        //void ReadSection_ENDMASK(Record &_record);
-        //void ReadSection_LIBDIRSIZE(Record &_record);
-        //void ReadSection_SRFNAME(Record &_record);
-        //void ReadSection_LIBSECUR(Record &_record);
+      //case rt_PLEX        : ReadSection_PLEX(GDSIIRecord &_record);        break;
+      //case rt_BGNEXTN     : ReadSection_BGNEXTN(GDSIIRecord &_record);     break;
+      //case ReadSection_ENDTEXTN(GDSIIRecord &_record);
+      //case ReadSection_TAPENUM(GDSIIRecord &_record);
+      //case ReadSection_TAPECODE(GDSIIRecord &_record);
+      //case ReadSection_STRCLASS(GDSIIRecord &_record);
+      //case ReadSection_RESERVED(GDSIIRecord &_record);
+      //case ReadSection_FORMAT(GDSIIRecord &_record);
+      //case ReadSection_MASK(GDSIIRecord &_record);
+      //case ReadSection_ENDMASK(GDSIIRecord &_record);
+      //case ReadSection_LIBDIRSIZE(GDSIIRecord &_record);
+      //case ReadSection_SRFNAME(GDSIIRecord &_record);
+      //case ReadSection_LIBSECUR(GDSIIRecord &_record);
       default:
         // wrong data
         file.seekg(gdsiiRecord.length, std::ios_base::cur);
@@ -117,11 +136,12 @@ bool LayoutReader_GDSIIBin::Read(LayoutData *layout) {
 
   file .close();
   //std::clock_t stopReading = std::clock();
-  layout->fileName = fileName;
+  layout->fileName    = fileName;
+  layout->fileFormat  = LayoutFileFormat::GDSIIbin;
   return ResolveReferences();
 }
 
-void LayoutReader_GDSIIBin::ReadSection_HEADER(Record &_record) {
+void LayoutReader_GDSIIbin::ReadSection_HEADER(GDSIIRecord &_record) {
   //TODO: read version number
   int16_t versionNumber = 0;
   file.read(reinterpret_cast<char *>(&versionNumber), sizeof(int16_t));
@@ -130,7 +150,7 @@ void LayoutReader_GDSIIBin::ReadSection_HEADER(Record &_record) {
 }
 
 
-void LayoutReader_GDSIIBin::ReadSection_BEGINLIBRARY(Record &_record) {
+void LayoutReader_GDSIIbin::ReadSection_BEGINLIBRARY(GDSIIRecord &_record) {
   if (p_activeLibrary) {
     //TODO: push error, library already started
     return;
@@ -159,7 +179,7 @@ void LayoutReader_GDSIIBin::ReadSection_BEGINLIBRARY(Record &_record) {
   //*/
 }
 
-void LayoutReader_GDSIIBin::ReadSection_LIBNAME(Record &_record) {
+void LayoutReader_GDSIIbin::ReadSection_LIBNAME(GDSIIRecord &_record) {
   if (!p_activeLibrary) {
     ////MessageManager::Get()->PushError("Format error. Found LIBNAME section outside of library.");
     return;
@@ -181,7 +201,7 @@ void LayoutReader_GDSIIBin::ReadSection_LIBNAME(Record &_record) {
   str = nullptr;
 }
 
-void LayoutReader_GDSIIBin::ReadSection_UNITS(Record &_record) {
+void LayoutReader_GDSIIbin::ReadSection_UNITS(GDSIIRecord &_record) {
   if (!p_activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found UNITS section outside of library.");
     return;
@@ -201,12 +221,12 @@ void LayoutReader_GDSIIBin::ReadSection_UNITS(Record &_record) {
   Normalize_DOUBLE(p_activeLibrary->units.physical);
 }
 
-void LayoutReader_GDSIIBin::ReadSection_ENDLIBRARY(Record &_record) {
+void LayoutReader_GDSIIbin::ReadSection_ENDLIBRARY(GDSIIRecord &_record) {
   //file.seekg(_record.length, std::ios_base::cur);
   // Nothing to do
 }
 
-void LayoutReader_GDSIIBin::ReadSection_BEGINSTRUCTURE(Record &_record) {
+void LayoutReader_GDSIIbin::ReadSection_BEGINSTRUCTURE(GDSIIRecord &_record) {
   if (!p_activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found BGNSTR section outside of library.");
     return;
@@ -244,7 +264,7 @@ void LayoutReader_GDSIIBin::ReadSection_BEGINSTRUCTURE(Record &_record) {
   //*/
 }
 
-void LayoutReader_GDSIIBin::ReadSection_STRNAME(Record &_record) {
+void LayoutReader_GDSIIbin::ReadSection_STRNAME(GDSIIRecord &_record) {
   if (!p_activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found STRNAME section outside of library.");
     return;
@@ -266,7 +286,7 @@ void LayoutReader_GDSIIBin::ReadSection_STRNAME(Record &_record) {
   str = nullptr;
 }
 
-void LayoutReader_GDSIIBin::ReadSection_ENDSTRUCTURE(Record &_record) {
+void LayoutReader_GDSIIbin::ReadSection_ENDSTRUCTURE(GDSIIRecord &_record) {
   if (!p_activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found ENDSTR section outside of library.");
     return;
@@ -283,7 +303,7 @@ void LayoutReader_GDSIIBin::ReadSection_ENDSTRUCTURE(Record &_record) {
   p_activeElement = nullptr;
 }
 
-void LayoutReader_GDSIIBin::ReadSection_BOUNDARY(Record &_record) {
+void LayoutReader_GDSIIbin::ReadSection_BOUNDARY(GDSIIRecord &_record) {
   if (!p_activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found BOUNDARY section outside of library.");
     return;
@@ -301,7 +321,7 @@ void LayoutReader_GDSIIBin::ReadSection_BOUNDARY(Record &_record) {
   p_activeElement->geometries.push_back(p_activeGeometry);
 }
 
-void LayoutReader_GDSIIBin::ReadSection_PATH(Record &_record) {
+void LayoutReader_GDSIIbin::ReadSection_PATH(GDSIIRecord &_record) {
   if (!p_activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found PATH section outside of library.");
     return;
@@ -319,7 +339,7 @@ void LayoutReader_GDSIIBin::ReadSection_PATH(Record &_record) {
   p_activeElement->geometries.push_back(p_activeGeometry);
 }
 
-void LayoutReader_GDSIIBin::ReadSection_SREF(Record &_record) {
+void LayoutReader_GDSIIbin::ReadSection_SREF(GDSIIRecord &_record) {
   if (!p_activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found SREF section outside of library.");
     return;
@@ -337,9 +357,9 @@ void LayoutReader_GDSIIBin::ReadSection_SREF(Record &_record) {
   p_activeElement->geometries.push_back(p_activeGeometry);
 }
 
-//void ReadSection_AREF(Record &_record);
+//void ReadSection_AREF(GDSIIRecord &_record);
 
-void LayoutReader_GDSIIBin::ReadSection_TEXT(Record &_record) {
+void LayoutReader_GDSIIbin::ReadSection_TEXT(GDSIIRecord &_record) {
   if (!p_activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found TEXT section outside of library.");
     return;
@@ -357,7 +377,7 @@ void LayoutReader_GDSIIBin::ReadSection_TEXT(Record &_record) {
   p_activeElement->geometries.push_back(p_activeGeometry);
 }
 
-void LayoutReader_GDSIIBin::ReadSection_LAYER(Record &_record) {
+void LayoutReader_GDSIIbin::ReadSection_LAYER(GDSIIRecord &_record) {
   if (!p_activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found LAYER section outside of library.");
     return;
@@ -375,7 +395,7 @@ void LayoutReader_GDSIIBin::ReadSection_LAYER(Record &_record) {
   Normalize_WORD(p_activeGeometry->layer);
 }
 
-void LayoutReader_GDSIIBin::ReadSection_DATATYPE(Record &_record) {
+void LayoutReader_GDSIIbin::ReadSection_DATATYPE(GDSIIRecord &_record) {
   if (!p_activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found DATATYPE section outside of library.");
     return;
@@ -406,7 +426,7 @@ void LayoutReader_GDSIIBin::ReadSection_DATATYPE(Record &_record) {
   }
 }
 
-void LayoutReader_GDSIIBin::ReadSection_WIDTH(Record &_record) {
+void LayoutReader_GDSIIbin::ReadSection_WIDTH(GDSIIRecord &_record) {
   if (!p_activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found WIDTH section outside of library.");
     return;
@@ -437,7 +457,7 @@ void LayoutReader_GDSIIBin::ReadSection_WIDTH(Record &_record) {
   }
 }
 
-void LayoutReader_GDSIIBin::ReadSection_XY(Record &_record) {
+void LayoutReader_GDSIIbin::ReadSection_XY(GDSIIRecord &_record) {
   if (!p_activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found XY section outside of library.");
     return;
@@ -522,7 +542,7 @@ void LayoutReader_GDSIIBin::ReadSection_XY(Record &_record) {
   }
 }
 
-void LayoutReader_GDSIIBin::ReadSection_ENDELEMENT(Record &_record) {
+void LayoutReader_GDSIIbin::ReadSection_ENDELEMENT(GDSIIRecord &_record) {
   if (!p_activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found ENDELEMENT section outside of library.");
     return;
@@ -539,7 +559,7 @@ void LayoutReader_GDSIIBin::ReadSection_ENDELEMENT(Record &_record) {
   p_activeGeometry = nullptr;
 }
 
-void LayoutReader_GDSIIBin::ReadSection_SNAME(Record &_record) {
+void LayoutReader_GDSIIbin::ReadSection_SNAME(GDSIIRecord &_record) {
   if (!p_activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found SNAME section outside of library.");
     return;
@@ -565,11 +585,11 @@ void LayoutReader_GDSIIBin::ReadSection_SNAME(Record &_record) {
   str = nullptr;
 }
 
-//void GDSIIBinaryReader::ReadSection_COLROW(Record &_record) {}
-//void GDSIIBinaryReader::ReadSection_TEXTNODE(Record &_record) {}
-//void GDSIIBinaryReader::ReadSection_NODE(Record &_record) {}
+//void GDSIIBinaryReader::ReadSection_COLROW(GDSIIRecord &_record) {}
+//void GDSIIBinaryReader::ReadSection_TEXTNODE(GDSIIRecord &_record) {}
+//void GDSIIBinaryReader::ReadSection_NODE(GDSIIRecord &_record) {}
 
-void LayoutReader_GDSIIBin::ReadSection_TEXTTYPE(Record &_record) {
+void LayoutReader_GDSIIbin::ReadSection_TEXTTYPE(GDSIIRecord &_record) {
   if (!p_activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found TEXTTYPE section outside of library.");
     return;
@@ -594,7 +614,7 @@ void LayoutReader_GDSIIBin::ReadSection_TEXTTYPE(Record &_record) {
   static_cast<Text *>(p_activeGeometry)->textType = type;
 }
 
-void LayoutReader_GDSIIBin::ReadSection_PRESENTATION(Record &_record) {
+void LayoutReader_GDSIIbin::ReadSection_PRESENTATION(GDSIIRecord &_record) {
   if (!p_activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found PRESENTATION section outside of library.");
     return;
@@ -621,7 +641,7 @@ void LayoutReader_GDSIIBin::ReadSection_PRESENTATION(Record &_record) {
 
 // UNUSED
 
-void LayoutReader_GDSIIBin::ReadSection_STRING(Record &_record) {
+void LayoutReader_GDSIIbin::ReadSection_STRING(GDSIIRecord &_record) {
   if (!p_activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found STRING section outside of library.");
     return;
@@ -647,7 +667,7 @@ void LayoutReader_GDSIIBin::ReadSection_STRING(Record &_record) {
   str = nullptr;
 }
 
-void LayoutReader_GDSIIBin::ReadSection_STRANS(Record &_record) {
+void LayoutReader_GDSIIbin::ReadSection_STRANS(GDSIIRecord &_record) {
   if (!p_activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found STRANS section outside of library.");
     return;
@@ -681,7 +701,7 @@ void LayoutReader_GDSIIBin::ReadSection_STRANS(Record &_record) {
   }
 }
 
-void LayoutReader_GDSIIBin::ReadSection_MAG(Record &_record) {
+void LayoutReader_GDSIIbin::ReadSection_MAG(GDSIIRecord &_record) {
   if (!p_activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found MAG section outside of library.");
     return;
@@ -715,13 +735,13 @@ void LayoutReader_GDSIIBin::ReadSection_MAG(Record &_record) {
   }
 }
 
-//void GDSIIBinaryReader::ReadSection_ANGLE(Record &_record) {}
-//void GDSIIBinaryReader::ReadSection_LINKTYPE(Record &_record) {}
-//void GDSIIBinaryReader::ReadSection_LINKKEYS(Record &_record) {}
-//void GDSIIBinaryReader::ReadSection_REFLIBS(Record &_record) {}
-//void GDSIIBinaryReader::ReadSection_FONTS(Record &_record) {}
+//void GDSIIBinaryReader::ReadSection_ANGLE(GDSIIRecord &_record) {}
+//void GDSIIBinaryReader::ReadSection_LINKTYPE(GDSIIRecord &_record) {}
+//void GDSIIBinaryReader::ReadSection_LINKKEYS(GDSIIRecord &_record) {}
+//void GDSIIBinaryReader::ReadSection_REFLIBS(GDSIIRecord &_record) {}
+//void GDSIIBinaryReader::ReadSection_FONTS(GDSIIRecord &_record) {}
 
-void LayoutReader_GDSIIBin::ReadSection_PATHTYPE(Record &_record) {
+void LayoutReader_GDSIIbin::ReadSection_PATHTYPE(GDSIIRecord &_record) {
   if (!p_activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found PATHTYPE section outside of library.");
     return;
@@ -752,17 +772,17 @@ void LayoutReader_GDSIIBin::ReadSection_PATHTYPE(Record &_record) {
   }
 }
 
-//void GDSIIBinaryReader::ReadSection_GENERATIONS(Record &_record) {}
-//void GDSIIBinaryReader::ReadSection_ATTRTABLE(Record &_record) {}
-//void GDSIIBinaryReader::ReadSection_STYPTABLE(Record &_record) {}
-//void GDSIIBinaryReader::ReadSection_STRTYPE(Record &_record) {}
-//void GDSIIBinaryReader::ReadSection_ELFLAGS(Record &_record) {}
-//void GDSIIBinaryReader::ReadSection_ELKEY(Record &_record) {}
+//void GDSIIBinaryReader::ReadSection_GENERATIONS(GDSIIRecord &_record) {}
+//void GDSIIBinaryReader::ReadSection_ATTRTABLE(GDSIIRecord &_record) {}
+//void GDSIIBinaryReader::ReadSection_STYPTABLE(GDSIIRecord &_record) {}
+//void GDSIIBinaryReader::ReadSection_STRTYPE(GDSIIRecord &_record) {}
+//void GDSIIBinaryReader::ReadSection_ELFLAGS(GDSIIRecord &_record) {}
+//void GDSIIBinaryReader::ReadSection_ELKEY(GDSIIRecord &_record) {}
 // UNUSED
 // UNUSED
-//void GDSIIBinaryReader::ReadSection_NODETYPE(Record &_record) {}
+//void GDSIIBinaryReader::ReadSection_NODETYPE(GDSIIRecord &_record) {}
 
-void LayoutReader_GDSIIBin::ReadSection_PROPATTR(Record &_record) {
+void LayoutReader_GDSIIbin::ReadSection_PROPATTR(GDSIIRecord &_record) {
   if (!p_activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found PROPATTR section outside of library.");
     return;
@@ -788,7 +808,7 @@ void LayoutReader_GDSIIBin::ReadSection_PROPATTR(Record &_record) {
   //p_activeGeometry->readingProperty = true;
 }
 
-void LayoutReader_GDSIIBin::ReadSection_PROPVALUE(Record &_record) {
+void LayoutReader_GDSIIbin::ReadSection_PROPVALUE(GDSIIRecord &_record) {
   if (!p_activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found PROPVALUE section outside of library.");
     return;
@@ -816,7 +836,7 @@ void LayoutReader_GDSIIBin::ReadSection_PROPVALUE(Record &_record) {
   //p_activeGeometry->readingProperty = false;
 }
 
-void LayoutReader_GDSIIBin::ReadSection_BOX(Record &_record) {
+void LayoutReader_GDSIIbin::ReadSection_BOX(GDSIIRecord &_record) {
   if (!p_activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found BOX section outside of library.");
     return;
@@ -834,7 +854,7 @@ void LayoutReader_GDSIIBin::ReadSection_BOX(Record &_record) {
   p_activeElement->geometries.push_back(p_activeGeometry);
 }
 
-void LayoutReader_GDSIIBin::ReadSection_BOXTYPE(Record &_record) {
+void LayoutReader_GDSIIbin::ReadSection_BOXTYPE(GDSIIRecord &_record) {
   if (!p_activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found BOXTYPE section outside of library.");
     return;
@@ -859,19 +879,19 @@ void LayoutReader_GDSIIBin::ReadSection_BOXTYPE(Record &_record) {
   static_cast<Rectangle *>(p_activeGeometry)->rectType = type;
 }
 
-//void GDSIIBinaryReader::ReadSection_PLEX(Record &_record) {}
-//void GDSIIBinaryReader::ReadSection_BGNEXTN(Record &_record) {}
-//void GDSIIBinaryReader::ReadSection_ENDTEXTN(Record &_record) {}
-//void GDSIIBinaryReader::ReadSection_TAPENUM(Record &_record) {}
-//void GDSIIBinaryReader::ReadSection_TAPECODE(Record &_record) {}
-//void GDSIIBinaryReader::ReadSection_STRCLASS(Record &_record) {}
-//void GDSIIBinaryReader::ReadSection_RESERVED(Record &_record) {}
-//void GDSIIBinaryReader::ReadSection_FORMAT(Record &_record) {}
-//void GDSIIBinaryReader::ReadSection_MASK(Record &_record) {}
-//void GDSIIBinaryReader::ReadSection_ENDMASK(Record &_record) {}
-//void GDSIIBinaryReader::ReadSection_LIBDIRSIZE(Record &_record) {}
-//void GDSIIBinaryReader::ReadSection_SRFNAME(Record &_record) {}
-//void GDSIIBinaryReader::ReadSection_LIBSECUR(Record &_record) {}
+//void GDSIIBinaryReader::ReadSection_PLEX(GDSIIRecord &_record) {}
+//void GDSIIBinaryReader::ReadSection_BGNEXTN(GDSIIRecord &_record) {}
+//void GDSIIBinaryReader::ReadSection_ENDTEXTN(GDSIIRecord &_record) {}
+//void GDSIIBinaryReader::ReadSection_TAPENUM(GDSIIRecord &_record) {}
+//void GDSIIBinaryReader::ReadSection_TAPECODE(GDSIIRecord &_record) {}
+//void GDSIIBinaryReader::ReadSection_STRCLASS(GDSIIRecord &_record) {}
+//void GDSIIBinaryReader::ReadSection_RESERVED(GDSIIRecord &_record) {}
+//void GDSIIBinaryReader::ReadSection_FORMAT(GDSIIRecord &_record) {}
+//void GDSIIBinaryReader::ReadSection_MASK(GDSIIRecord &_record) {}
+//void GDSIIBinaryReader::ReadSection_ENDMASK(GDSIIRecord &_record) {}
+//void GDSIIBinaryReader::ReadSection_LIBDIRSIZE(GDSIIRecord &_record) {}
+//void GDSIIBinaryReader::ReadSection_SRFNAME(GDSIIRecord &_record) {}
+//void GDSIIBinaryReader::ReadSection_LIBSECUR(GDSIIRecord &_record) {}
 
 
 
@@ -881,7 +901,7 @@ void LayoutReader_GDSIIBin::ReadSection_BOXTYPE(Record &_record) {
 
 
 
-bool LayoutReader_GDSIIBin::ResolveReferences() {
+bool LayoutReader_GDSIIbin::ResolveReferences() {
   Reference  *p_strRef = nullptr;
   //GDSII_ArrayRef     *p_arrRef = nullptr;
   bool                refFound = false;

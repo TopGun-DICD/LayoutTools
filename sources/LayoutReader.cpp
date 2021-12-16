@@ -1,11 +1,14 @@
 #include "LayoutReader.hpp"
 
-BaseLayoutReader::BaseLayoutReader() : p_data(nullptr) {}
+#include "LayoutReader_GDSIIbin.hpp"
+#include "LayoutReader_MSK.hpp"
 
-BaseLayoutReader *GetReader(const std::string &fName) {
-  BaseLayoutReader *p_reader = nullptr;
+LayoutReader::LayoutReader() : p_data(nullptr) {}
 
-  p_reader = new LayoutReader_GDSIIBin;
+LayoutReader *GetReader(const std::string &fName) {
+  LayoutReader *p_reader = nullptr;
+
+  p_reader = new LayoutReader_GDSIIbin;
   if (p_reader->IsMyFormat(fName))
     return p_reader;
   delete p_reader;
@@ -20,7 +23,7 @@ BaseLayoutReader *GetReader(const std::string &fName) {
   return p_reader;
 }
 
-void FreeReader(BaseLayoutReader *reader) {
+void FreeReader(LayoutReader *reader) {
   if (!reader)
     return;
   delete reader;

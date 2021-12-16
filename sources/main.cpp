@@ -7,15 +7,15 @@
 int main(int argc, char *argv[]) {
   LayoutData  layout;
 
-  std::string fileName = "tests/inv.gds";
+  //std::string fileName = "tests/inv.gds";
   //std::string fileName = "output.gds";
   //std::string fileName = "tests/nand2.gds";
   //std::string fileName = "tests/xor.gds";
   //std::string fileName = "tests/1Kpolyg.gds";
   //std::string fileName = "tests/testDesign.gds";
-  //std::string fileName = "tests/cmos.msk";
+  std::string fileName = "tests/cmos.msk";
 
-  BaseLayoutReader *p_reader = GetReader(fileName);
+  LayoutReader *p_reader = GetReader(fileName);
   if (!p_reader) {
     std::cerr << "__err__ : Can't file appropriate reader for given file '" << fileName << "'." << std::endl;
     return EXIT_FAILURE;
@@ -40,8 +40,8 @@ int main(int argc, char *argv[]) {
     std::cout << " }" << std::endl;
   }
 
-  /*
-  AbstractLayoutWriter *p_writer = GetWriter("gdsiibin");
+  //*
+  LayoutWriter *p_writer = GetWriter(LayoutFileFormat::GDSIIbin);
   if (!p_writer) {
     std::cerr << "__err__ : Can't file appropriate writer for format  'gdsiibin'." << std::endl;
     return EXIT_FAILURE;
