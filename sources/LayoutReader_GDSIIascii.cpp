@@ -13,7 +13,7 @@
 LayoutReader_GDSIIascii::LayoutReader_GDSIIascii() : p_activeLibrary(nullptr), p_activeElement(nullptr), p_activeGeometry(nullptr) {
 }
 
-bool LayoutReader_GDSIIascii::IsMyFormat(const std::string &fName) {
+bool LayoutReader_GDSIIascii::IsMyFormat(const std::wstring &fName) {
   return false;
 }
 

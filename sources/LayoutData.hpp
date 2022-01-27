@@ -32,8 +32,10 @@ struct Geometry {
   int16_t               layer;
   std::vector<Property> properties;
   std::vector<Coord>    coords;
+  Coord                 min,
+                        max;
 public:
-  Geometry(GeometryType t) : type(t), layer(-1) {}
+  Geometry(GeometryType t) : type(t), layer(-1), min({ -1, -1 }), max({-1, -1}) {}
 };
 
 struct Polygon : public Geometry {
@@ -82,7 +84,11 @@ public:
 struct Element {
   std::string             name;
   std::vector<Geometry *> geometries;
+  bool                    isFlat;
+  Coord                   min,
+                          max;
 public:
+  Element() : isFlat(true), min({ -1, -1 }), max({-1, -1}) {}
   ~Element() {
     for (size_t i = 0; i < geometries.size(); ++i) {
       delete geometries[i];
@@ -119,14 +125,18 @@ public:
 };
 
 enum class LayoutFileFormat {
-  GDSIIbin,
-  GDSIIascii,
+  undefined,
+  GDSII_bin,
+  GDSII_ascii,
   MSK,
   CIF,
+  DXF,
+  OASIS,
+  OpenAccess,
 };
 
 struct LayoutData {
-  std::string             fileName;
+  std::wstring             fileName;
   std::vector<Library *>  libraries;
   LayoutFileFormat        fileFormat;
 public:

@@ -9,17 +9,18 @@
 #define _CRT_SECURE_NO_WARNINGS
 
 #include <unordered_map>
+#include <codecvt>
 
-bool LayoutReader_MSK::IsMyFormat(const std::string& fName)
+bool LayoutReader_MSK::IsMyFormat(const std::wstring& fName)
 {
-    size_t comma_pos = fName.find_last_of(".");
+    size_t comma_pos = fName.find_last_of(L".");
     if (comma_pos == std::string::npos)
         return false;
         fileName = fName;
-    std::string file_extention = fName.substr(comma_pos + 1, fName.length() - comma_pos);
+    std::wstring file_extention = fName.substr(comma_pos + 1, fName.length() - comma_pos);
 
-    if (file_extention != "MSK")
-        if (file_extention != "msk")
+    if (file_extention != L"MSK")
+        if (file_extention != L"msk")
             return false;
 
     file.open(fName, std::ios::in);
@@ -73,15 +74,30 @@ inline int32_t LayoutReader_MSK::find_layer_num(const std::vector <Layer>& all_l
 
     return -1;
 }
+
+// URL: https://microeducate.tech/convert-wstring-to-string-encoded-in-utf-8/
+std::string wstring_to_utf8(const std::wstring& str)
+{
+  std::wstring_convert<std::codecvt_utf8<wchar_t>> myconv;
+  return myconv.to_bytes(str);
+}
+
 std::string LayoutReader_MSK::receive_element_name()
 {
-    const std::string &temp_fName = fileName;
-    const size_t last_comma_pos = temp_fName.find_last_of(".");
-    const size_t start_name_pos = temp_fName.find_last_of("/");
-    if (start_name_pos == std::string::npos)
-        return temp_fName.substr(0, last_comma_pos);
-    else return temp_fName.substr(start_name_pos+1, last_comma_pos-start_name_pos-1);//0 терминатор, 3 символа под расширение и 1 под точку
-
+    const std::wstring& temp_fName = fileName;
+    const size_t last_comma_pos = temp_fName.find_last_of(L".");
+    const size_t start_name_pos = temp_fName.find_last_of(L"/");
+    if (start_name_pos == std::string::npos) {
+      //std::wstring tmp = temp_fName.substr(0, last_comma_pos);
+      //std::string  retValue(tmp.begin(), tmp.end());
+      return wstring_to_utf8(temp_fName.substr(0, last_comma_pos));
+    }
+    else {
+      //std::wstring tmp = temp_fName.substr(start_name_pos + 1, last_comma_pos - start_name_pos - 1);//0 терминатор, 3 символа под расширение и 1 под точку
+      //std::string  retValue(tmp.begin(), tmp.end());
+      //return retValue;
+      return wstring_to_utf8(temp_fName.substr(start_name_pos + 1, last_comma_pos - start_name_pos - 1));
+    }
 }
 bool LayoutReader_MSK::Read(LayoutData* layout)
 {
@@ -98,7 +114,7 @@ bool LayoutReader_MSK::Read(LayoutData* layout)
     
     p_data->fileName = this->fileName;
     p_active_element->name = receive_element_name();
-    p_active_library->name = this->fileName;
+    p_active_library->name = wstring_to_utf8(fileName);
     //Переменная для хранения одной строки из файла
     std::string line_from_file;
     while (std::getline(file, line_from_file))
@@ -144,8 +160,21 @@ bool LayoutReader_MSK::Read(LayoutData* layout)
     layout->fileName = fileName;
     layout->fileFormat = LayoutFileFormat::MSK;
 
-    return true;
-    
+    layout->libraries[0]->elements[0]->min = layout->libraries[0]->elements[0]->geometries[0]->min;
+    layout->libraries[0]->elements[0]->max = layout->libraries[0]->elements[0]->geometries[0]->max;
+
+    for (size_t i = 1; i < layout->libraries[0]->elements[0]->geometries.size(); ++i) {
+      if (layout->libraries[0]->elements[0]->min.x > layout->libraries[0]->elements[0]->geometries[i]->min.x)
+        layout->libraries[0]->elements[0]->min.x = layout->libraries[0]->elements[0]->geometries[i]->min.x;
+      if (layout->libraries[0]->elements[0]->min.y > layout->libraries[0]->elements[0]->geometries[i]->min.y)
+        layout->libraries[0]->elements[0]->min.y = layout->libraries[0]->elements[0]->geometries[i]->min.y;
+      if (layout->libraries[0]->elements[0]->max.x < layout->libraries[0]->elements[0]->geometries[i]->max.x)
+        layout->libraries[0]->elements[0]->max.x = layout->libraries[0]->elements[0]->geometries[i]->max.x;
+      if (layout->libraries[0]->elements[0]->max.y < layout->libraries[0]->elements[0]->geometries[i]->max.y)
+        layout->libraries[0]->elements[0]->max.y = layout->libraries[0]->elements[0]->geometries[i]->max.y;
+    }
+
+    return true; 
 }
 
 
@@ -199,9 +228,18 @@ void LayoutReader_MSK::fill_GeometryItem_box(Geometry* filling_box, const Coord&
     filling_box->coords.push_back(curr_coord);
 
     filling_box->layer = layer_num;
-    
 
-    
+    filling_box->min = filling_box->max = filling_box->coords[0];
+    for (size_t i = 1; i < filling_box->coords.size(); ++i) {
+      if (filling_box->min.x > filling_box->coords[i].x)
+        filling_box->min.x = filling_box->coords[i].x;
+      if (filling_box->min.y > filling_box->coords[i].y)
+        filling_box->min.y = filling_box->coords[i].y;
+      if (filling_box->max.x < filling_box->coords[i].x)
+        filling_box->max.x = filling_box->coords[i].x;
+      if (filling_box->max.y < filling_box->coords[i].y)
+        filling_box->max.y = filling_box->coords[i].y;
+    }
 }
 
 inline int32_t LayoutReader_MSK::calculate_delta(const int32_t first,const int32_t second)

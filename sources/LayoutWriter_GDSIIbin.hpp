@@ -11,7 +11,7 @@ class LayoutWriter_GDSIIbin : public LayoutWriter {
 public:
   LayoutWriter_GDSIIbin();
 public:
-  bool Write(std::string fileName, LayoutData *layout) final;
+  bool Write(std::wstring fileName, LayoutData *layout) final;
 private:
   void WriteSection_HEADER();
 

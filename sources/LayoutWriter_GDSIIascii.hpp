@@ -11,6 +11,6 @@ class LayoutWriter_GDSIIascii : public LayoutWriter {
 public:
   LayoutWriter_GDSIIascii();
 public:
-  bool Write(std::string fileName, LayoutData *layout) final;
+  bool Write(std::wstring fileName, LayoutData *layout) final;
 private:
 };

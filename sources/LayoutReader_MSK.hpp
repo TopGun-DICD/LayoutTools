@@ -24,7 +24,7 @@ private:
 public:
 	LayoutReader_MSK() :p_active_library(nullptr),p_active_element(nullptr),p_active_geometry_item(nullptr) {}
 
-	bool            IsMyFormat(const std::string& fName) override final;
+	bool            IsMyFormat(const std::wstring& fName) override final;
 	bool            Read(LayoutData* layout) override final;
 private:
 	inline bool     read_Rectangle_coords(const std::string& line, Coord& left_bot, Coord& right_top, std::string& layer_name);

@@ -16,15 +16,15 @@
 
 class LayoutReader {
 protected:
-  std::string   fileName;
+  std::wstring  fileName;
   LayoutData   *p_data;
   std::ifstream file;
 public:
   LayoutReader();
 public:
-  virtual bool IsMyFormat(const std::string &fName) = 0;
+  virtual bool IsMyFormat(const std::wstring &fName) = 0;
   virtual bool Read(LayoutData *layout) = 0;
 };
 
-LayoutReader*GetReader(const std::string &fName);
+LayoutReader*GetReader(const std::wstring &fName);
 void FreeReader(LayoutReader*ptr);

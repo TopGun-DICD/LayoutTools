@@ -22,7 +22,7 @@ class LayoutReader_GDSIIascii : public LayoutReader {
 public:
   LayoutReader_GDSIIascii();
 public:
-  bool IsMyFormat(const std::string &fName) final;
+  bool IsMyFormat(const std::wstring &fName) final;
   bool Read(LayoutData *layout) final;
 private:
 };

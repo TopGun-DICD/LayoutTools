@@ -13,11 +13,11 @@
 LayoutReader_GDSIIbin::LayoutReader_GDSIIbin() : p_activeLibrary(nullptr), p_activeElement(nullptr), p_activeGeometry(nullptr) {
 }
 
-bool LayoutReader_GDSIIbin::IsMyFormat(const std::string &fName) {
+bool LayoutReader_GDSIIbin::IsMyFormat(const std::wstring &fName) {
   fileName = fName;
 
-  if (fileName.substr(fileName.find_last_of(".") + 1) != "gds")
-    if (fileName.substr(fileName.find_last_of(".") + 1) != "gdsii")
+  if (fileName.substr(fileName.find_last_of(L".") + 1) != L"gds")
+    if (fileName.substr(fileName.find_last_of(L".") + 1) != L"gdsii")
       return false;
 
   file.open(fileName, std::ios::in | std::ios::binary);
@@ -137,7 +137,7 @@ bool LayoutReader_GDSIIbin::Read(LayoutData *layout) {
   file .close();
   //std::clock_t stopReading = std::clock();
   layout->fileName    = fileName;
-  layout->fileFormat  = LayoutFileFormat::GDSIIbin;
+  layout->fileFormat  = LayoutFileFormat::GDSII_bin;
   return ResolveReferences();
 }
 
@@ -194,7 +194,7 @@ void LayoutReader_GDSIIbin::ReadSection_LIBNAME(GDSIIRecord &_record) {
   }
 
   char *str = new char[_record.length + 1];
-  memset(str, 0, _record.length + 1);
+  memset(str, 0, (size_t)_record.length + 1);
   file.read(str, _record.length);
   p_activeLibrary->name = str;
   delete[] str;
@@ -300,6 +300,21 @@ void LayoutReader_GDSIIbin::ReadSection_ENDSTRUCTURE(GDSIIRecord &_record) {
     return;
   }
 
+  if (!p_activeElement->geometries.empty()) {
+    p_activeElement->min = p_activeElement->geometries[0]->min;
+    p_activeElement->max = p_activeElement->geometries[0]->max;
+
+    for (size_t i = 1; i < p_activeElement->geometries.size(); ++i) {
+      if (p_activeElement->min.x > p_activeElement->geometries[i]->min.x)
+        p_activeElement->min.x = p_activeElement->geometries[i]->min.x;
+      if (p_activeElement->min.y > p_activeElement->geometries[i]->min.y)
+        p_activeElement->min.y = p_activeElement->geometries[i]->min.y;
+      if (p_activeElement->max.x < p_activeElement->geometries[i]->max.x)
+        p_activeElement->max.x = p_activeElement->geometries[i]->max.x;
+      if (p_activeElement->max.y > p_activeElement->geometries[i]->max.y)
+        p_activeElement->max.y = p_activeElement->geometries[i]->max.y;
+    }
+  }
   p_activeElement = nullptr;
 }
 
@@ -355,6 +370,7 @@ void LayoutReader_GDSIIbin::ReadSection_SREF(GDSIIRecord &_record) {
 
   p_activeGeometry = new Reference;
   p_activeElement->geometries.push_back(p_activeGeometry);
+  p_activeElement->isFlat = false;
 }
 
 //void ReadSection_AREF(GDSIIRecord &_record);
@@ -539,6 +555,21 @@ void LayoutReader_GDSIIbin::ReadSection_XY(GDSIIRecord &_record) {
     default:
       ;
       //MessageManager::Get()->PushError("Format error. Found XY section given for inproper type of element.");
+  }
+  
+  if (p_activeGeometry->coords.empty())
+    return;
+
+  p_activeGeometry->min = p_activeGeometry->max = p_activeGeometry->coords[0];
+  for (size_t i = 1; i < p_activeGeometry->coords.size(); ++i) {
+    if (p_activeGeometry->min.x > p_activeGeometry->coords[i].x)
+      p_activeGeometry->min.x = p_activeGeometry->coords[i].x;
+    if (p_activeGeometry->min.y > p_activeGeometry->coords[i].y)
+      p_activeGeometry->min.y = p_activeGeometry->coords[i].y;
+    if (p_activeGeometry->max.x < p_activeGeometry->coords[i].x)
+      p_activeGeometry->max.x = p_activeGeometry->coords[i].x;
+    if (p_activeGeometry->max.y < p_activeGeometry->coords[i].y)
+      p_activeGeometry->max.y = p_activeGeometry->coords[i].y;
   }
 }
 

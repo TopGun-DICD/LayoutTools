@@ -15,7 +15,7 @@ LayoutWriter_GDSIIbin::LayoutWriter_GDSIIbin() {
 
 }
 
-bool LayoutWriter_GDSIIbin::Write(std::string fileName, LayoutData *layout) {
+bool LayoutWriter_GDSIIbin::Write(std::wstring fileName, LayoutData *layout) {
   if (!layout)
     return false;
   

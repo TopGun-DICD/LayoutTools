@@ -13,7 +13,7 @@ protected:
 public:
   LayoutWriter();
 public:
-  virtual bool Write(std::string fileName, LayoutData *layout) = 0;
+  virtual bool Write(std::wstring fileName, LayoutData *layout) = 0;
 };
 
 LayoutWriter *GetWriter(LayoutFileFormat format);

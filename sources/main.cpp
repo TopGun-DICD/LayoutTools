@@ -3,31 +3,32 @@
 #include "LayoutData.hpp"
 #include "LayoutReader.hpp"
 #include "LayoutWriter.hpp"
+#include "LayoutProcessing.hpp"
 
 int main(int argc, char *argv[]) {
   LayoutData  layout;
 
-  //std::string fileName = "tests/inv.gds";
-  //std::string fileName = "output.gds";
-  //std::string fileName = "tests/nand2.gds";
-  //std::string fileName = "tests/xor.gds";
-  //std::string fileName = "tests/1Kpolyg.gds";
-  //std::string fileName = "tests/testDesign.gds";
-  std::string fileName = "tests/cmos.msk";
+  //std::wstring fileName = L"tests/inv.gds";
+  //std::wstring fileName = L"output.gds";
+  //std::wstring fileName = L"tests/nand2.gds";
+  //std::wstring fileName = L"tests/xor.gds";
+  //std::wstring fileName = L"tests/1Kpolyg.gds";
+  //std::wstring fileName = L"tests/testDesign.gds";
+  std::wstring fileName = L"tests/cmos.msk";
 
   LayoutReader *p_reader = GetReader(fileName);
   if (!p_reader) {
-    std::cerr << "__err__ : Can't file appropriate reader for given file '" << fileName << "'." << std::endl;
+    std::wcerr << "__err__ : Can't file appropriate reader for given file '" << fileName << "'." << std::endl;
     return EXIT_FAILURE;
   }
   if (!p_reader->Read(&layout)) {
-    std::cerr << "__err__ : Can't read file '" << fileName << "'." << std::endl;
+    std::wcerr << "__err__ : Can't read file '" << fileName << "'." << std::endl;
     FreeReader(p_reader);
     return EXIT_FAILURE;
   }
   FreeReader(p_reader);
 
-  std::cout << "Input file " << fileName << " has " << layout.libraries.size() << " library(ies)" << std::endl;
+  std::wcout << "Input file " << fileName << " has " << layout.libraries.size() << " library(ies)" << std::endl;
 
   for (size_t i = 0; i < layout.libraries.size(); ++i) {
     std::cout << "  - Library [" << i << "] has name '" << layout.libraries[i]->name << "' and contains " << layout.libraries[i]->elements.size() << " elements:" << std::endl;
@@ -40,8 +41,8 @@ int main(int argc, char *argv[]) {
     std::cout << " }" << std::endl;
   }
 
-  //*
-  LayoutWriter *p_writer = GetWriter(LayoutFileFormat::GDSIIbin);
+  /*
+  LayoutWriter *p_writer = GetWriter(LayoutFileFormat::GDSII_bin);
   if (!p_writer) {
     std::cerr << "__err__ : Can't file appropriate writer for format  'gdsiibin'." << std::endl;
     return EXIT_FAILURE;

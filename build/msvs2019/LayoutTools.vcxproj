@@ -145,6 +145,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\sources\GDSIIHelperFunctions.cpp" />
+    <ClCompile Include="..\..\sources\LayoutProcessing.cpp" />
     <ClCompile Include="..\..\sources\LayoutReader.cpp" />
     <ClCompile Include="..\..\sources\LayoutReader_GDSIIascii.cpp" />
     <ClCompile Include="..\..\sources\LayoutReader_GDSIIbin.cpp" />
@@ -159,6 +160,7 @@
     <ClInclude Include="..\..\sources\GDSIITypes.hpp" />
     <ClInclude Include="..\..\sources\GDSIIHelperFunctions.hpp" />
     <ClInclude Include="..\..\sources\LayoutData.hpp" />
+    <ClInclude Include="..\..\sources\LayoutProcessing.hpp" />
     <ClInclude Include="..\..\sources\LayoutReader.hpp" />
     <ClInclude Include="..\..\sources\LayoutReader_GDSIIascii.hpp" />
     <ClInclude Include="..\..\sources\LayoutReader_GDSIIbin.hpp" />

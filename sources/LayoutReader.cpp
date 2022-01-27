@@ -5,7 +5,7 @@
 
 LayoutReader::LayoutReader() : p_data(nullptr) {}
 
-LayoutReader *GetReader(const std::string &fName) {
+LayoutReader *GetReader(const std::wstring &fName) {
   LayoutReader *p_reader = nullptr;
 
   p_reader = new LayoutReader_GDSIIbin;

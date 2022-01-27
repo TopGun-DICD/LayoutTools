@@ -5,7 +5,7 @@ LayoutWriter::LayoutWriter() {}
 
 LayoutWriter *GetWriter(LayoutFileFormat format) {
   switch (format) {
-    case LayoutFileFormat::GDSIIbin:  return new LayoutWriter_GDSIIbin;
+    case LayoutFileFormat::GDSII_bin:  return new LayoutWriter_GDSIIbin;
   }
 
   return nullptr;
