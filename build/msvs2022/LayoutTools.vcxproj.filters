@@ -3,37 +3,69 @@
   <ItemGroup>
     <Filter Include="Source Files">
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
     <Filter Include="Header Files">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
     <Filter Include="Header Files\GDSII">
-      <UniqueIdentifier>{5daead39-d423-46a0-a58c-ff64514639c6}</UniqueIdentifier>
+      <UniqueIdentifier>{fbe7a109-4fd1-43be-8ee2-61349ff6137d}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\MSK">
-      <UniqueIdentifier>{3b8c66c7-75a4-4326-83a0-2329aea9ddea}</UniqueIdentifier>
+      <UniqueIdentifier>{aa26f231-75b6-4e3e-95fc-b3248255e64d}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\GDSII">
-      <UniqueIdentifier>{d23fc457-b63d-4c51-b6ea-9973b1e1b6f3}</UniqueIdentifier>
+      <UniqueIdentifier>{4d35b59a-2655-45a2-8614-a451ac47d823}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\MSK">
-      <UniqueIdentifier>{610cf05b-8518-4bca-8c75-1c54c0fddda9}</UniqueIdentifier>
+      <UniqueIdentifier>{00ea4314-1abf-4338-b7ee-77074736c09a}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\sources\LayoutReader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\sources\LayoutWriter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\sources\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\sources\GDSIIHelperFunctions.cpp">
+      <Filter>Source Files\GDSII</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\sources\LayoutReader_GDSIIascii.cpp">
+      <Filter>Source Files\GDSII</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\sources\LayoutReader_GDSIIbin.cpp">
+      <Filter>Source Files\GDSII</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\sources\LayoutWriter_GDSIIascii.cpp">
+      <Filter>Source Files\GDSII</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\sources\LayoutWriter_GDSIIbin.cpp">
+      <Filter>Source Files\GDSII</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\sources\LayoutWriter_MSK.cpp">
+      <Filter>Source Files\MSK</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\sources\LayoutReader_MSK.cpp">
+      <Filter>Source Files\MSK</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\sources\LayoutProcessing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\sources\LayoutReader.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\sources\LayoutData.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\sources\LayoutWriter.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\sources\GDSIIHelperFunctions.hpp">
@@ -60,43 +92,11 @@
     <ClInclude Include="..\..\sources\LayoutReader_MSK.hpp">
       <Filter>Header Files\MSK</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\sources\LayoutWriter.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\sources\LayoutProcessing.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\sources\LayoutReader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\sources\main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\sources\LayoutWriter.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\sources\LayoutReader_GDSIIascii.cpp">
-      <Filter>Source Files\GDSII</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\sources\LayoutReader_GDSIIbin.cpp">
-      <Filter>Source Files\GDSII</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\sources\LayoutWriter_GDSIIascii.cpp">
-      <Filter>Source Files\GDSII</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\sources\LayoutWriter_GDSIIbin.cpp">
-      <Filter>Source Files\GDSII</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\sources\GDSIIHelperFunctions.cpp">
-      <Filter>Source Files\GDSII</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\sources\LayoutReader_MSK.cpp">
-      <Filter>Source Files\MSK</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\sources\LayoutWriter_MSK.cpp">
-      <Filter>Source Files\MSK</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\sources\LayoutProcessing.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>
