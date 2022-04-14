@@ -1,12 +1,12 @@
 #include <iostream>
 
-#include "LayoutData.hpp"
+#include "Layout.hpp"
 #include "LayoutReader.hpp"
 #include "LayoutWriter.hpp"
 #include "LayoutProcessing.hpp"
 
 int main(int argc, char *argv[]) {
-  LayoutData  layout;
+  Layout  layout;
 
   //std::wstring fileName = L"tests/inv.gds";
   //std::wstring fileName = L"output.gds";
@@ -15,6 +15,7 @@ int main(int argc, char *argv[]) {
   //std::wstring fileName = L"tests/1Kpolyg.gds";
   //std::wstring fileName = L"tests/testDesign.gds";
   std::wstring fileName = L"tests/cmos.msk";
+  //std::wstring fileName = L"tests/inv.msk";
 
   LayoutReader *p_reader = GetReader(fileName);
   if (!p_reader) {

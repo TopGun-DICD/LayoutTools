@@ -1,4 +1,5 @@
 #include "GDSIIHelperFunctions.hpp"
+#include "GDSIITypes.hpp"
 
 #include <cmath>
 #include <cfloat>

@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 
+// Used in GDSII
 struct Units {
   double  user,
           physical;
@@ -13,6 +14,7 @@ struct Coord {
           y;
 };
 
+// Used in GDSII
 struct Property {
   int16_t     index;
   std::string value;
@@ -30,10 +32,10 @@ enum class GeometryType {
 struct Geometry {
   GeometryType          type;
   int16_t               layer;
-  std::vector<Property> properties;
-  std::vector<Coord>    coords;
   Coord                 min,
                         max;
+  std::vector<Property> properties;
+  std::vector<Coord>    coords;
 public:
   Geometry(GeometryType t) : type(t), layer(-1), min({ -1, -1 }), max({-1, -1}) {}
 };
@@ -74,21 +76,22 @@ struct Element;
 
 struct Reference : public Geometry {
   std::string             name;
-  Element                *pElement;
-  int32_t                 transformationFlags;
+  Element                *referenceTo;
+  int16_t                 transformationFlags;
   double                  magnification;
 public:
-  Reference() : Geometry(GeometryType::reference), name(""), pElement(nullptr), transformationFlags(0), magnification(1.0) {}
+  Reference() : Geometry(GeometryType::reference), name(""), referenceTo(nullptr), transformationFlags(0), magnification(1.0) {}
 };
 
 struct Element {
-  std::string             name;
-  std::vector<Geometry *> geometries;
   bool                    isFlat;
   Coord                   min,
                           max;
+  bool                    nested;
+  std::string             name;
+  std::vector<Geometry *> geometries;
 public:
-  Element() : isFlat(true), min({ -1, -1 }), max({-1, -1}) {}
+  Element() : isFlat(true), min({ -1, -1 }), max({-1, -1}), nested(false) {}
   ~Element() {
     for (size_t i = 0; i < geometries.size(); ++i) {
       delete geometries[i];
@@ -105,14 +108,14 @@ struct Layer {
 };
 
 struct Library {
-  std::string             name;
   Units                   units;
+  Coord                   min,
+                          max;
+  std::string             name;
   std::vector<Element *>  elements;
   std::vector<Layer>      layers;
 public:
-  Library() {
-    units.user = 0.001;
-    units.physical = 1e-9;
+  Library() : units({ 0.001 , 1e-9}), min({ -1, -1 }), max({ -1, -1 }) {
   }
  ~Library() {
     for (size_t i = 0; i < elements.size(); ++i) {
@@ -124,7 +127,7 @@ public:
   }
 };
 
-enum class LayoutFileFormat {
+enum class FileFormat {
   undefined,
   GDSII_bin,
   GDSII_ascii,
@@ -135,12 +138,12 @@ enum class LayoutFileFormat {
   OpenAccess,
 };
 
-struct LayoutData {
-  std::wstring             fileName;
+struct Layout {
+  std::wstring            fileName;
+  FileFormat              fileFormat;
   std::vector<Library *>  libraries;
-  LayoutFileFormat        fileFormat;
 public:
-  ~LayoutData() {
+  ~Layout() {
     for (size_t i = 0; i < libraries.size(); ++i) {
       delete libraries[i];
       libraries[i] = nullptr;

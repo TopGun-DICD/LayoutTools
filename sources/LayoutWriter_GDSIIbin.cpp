@@ -6,16 +6,16 @@
  */
 
 #include "LayoutWriter_GDSIIbin.hpp"
+#include "GDSIITypes.hpp"
 #include "GDSIIHelperFunctions.hpp"
 
 #include <ctime>
-#include "GDSIITypes.hpp"
 
 LayoutWriter_GDSIIbin::LayoutWriter_GDSIIbin() {
 
 }
 
-bool LayoutWriter_GDSIIbin::Write(std::wstring fileName, LayoutData *layout) {
+bool LayoutWriter_GDSIIbin::Write(std::wstring fileName, Layout *layout) {
   if (!layout)
     return false;
   
@@ -162,9 +162,9 @@ void LayoutWriter_GDSIIbin::WriteSection_BEGINSTRUCTURE(Element *element) {
 }
 
 void LayoutWriter_GDSIIbin::WriteSection_STRNAME(Element *element) {
-  int actualNameLength = static_cast<int>(element->name.length());
+  size_t actualNameLength = element->name.length();             //static_cast<int>(element->name.length());
   if(element->name.length() % 4 != 0)
-    actualNameLength = ((static_cast<int>(element->name.length()) / 4) + 1) * 4;
+    actualNameLength = ((element->name.length() / 4) + 1) * 4;  //((static_cast<int>(element->name.length()) / 4) + 1) * 4;
   GDSIIRecord gdsiiRecord = { static_cast <int16_t>(sizeof(GDSIIRecord)) + static_cast<int16_t>(actualNameLength) , rt_STRNAME , 6 };
   // Write Header
   DeNormalize_WORD(gdsiiRecord.length);
@@ -173,7 +173,7 @@ void LayoutWriter_GDSIIbin::WriteSection_STRNAME(Element *element) {
   file.write(element->name.data(), element->name.length());
   if (element->name.length() % 4 != 0) {
     char zeroByte = 0;
-    for (int i = 0; i < actualNameLength - element->name.length(); ++i)
+    for (size_t i = 0; i < actualNameLength - element->name.length(); ++i)
       file.write(&zeroByte, 1);
   }
 }
@@ -278,9 +278,9 @@ void LayoutWriter_GDSIIbin::WriteSection_SREF(Reference *reference) {
   file.write(reinterpret_cast<char *>(&gdsiiRecord), sizeof(GDSIIRecord));
   // SNAME
   gdsiiRecord.recordType = rt_SNAME;
-  int actualNameLength = static_cast<int>(reference->name.length());
+  size_t actualNameLength = reference->name.length();             //static_cast<int>(reference->name.length());
   if(reference->name.length() % 4 != 0)
-    actualNameLength = static_cast<int>(((reference->name.length() / 4) + 1) * 4);
+    actualNameLength = ((reference->name.length() / 4) + 1) * 4;  //static_cast<int>(((reference->name.length() / 4) + 1) * 4);
   gdsiiRecord.length = sizeof(GDSIIRecord) + static_cast<int16_t>(actualNameLength);
   gdsiiRecord.dataType = 6;
   DeNormalize_WORD(gdsiiRecord.length);
@@ -288,7 +288,7 @@ void LayoutWriter_GDSIIbin::WriteSection_SREF(Reference *reference) {
   file.write(reference->name.data(), reference->name.length());
   if (reference->name.length() % 4 != 0) {
     char zeroByte = 0;
-    for (int i = 0; i < actualNameLength - reference->name.length(); ++i)
+    for (size_t i = 0; i < actualNameLength - reference->name.length(); ++i)
       file.write(&zeroByte, 1);
   }
   // XY

@@ -25,6 +25,7 @@
     <ClCompile Include="..\..\sources\LayoutReader_GDSIIascii.cpp" />
     <ClCompile Include="..\..\sources\LayoutReader_GDSIIbin.cpp" />
     <ClCompile Include="..\..\sources\LayoutReader_MSK.cpp" />
+    <ClCompile Include="..\..\sources\LayoutReader_OASIS.cpp" />
     <ClCompile Include="..\..\sources\LayoutWriter.cpp" />
     <ClCompile Include="..\..\sources\LayoutWriter_GDSIIascii.cpp" />
     <ClCompile Include="..\..\sources\LayoutWriter_GDSIIbin.cpp" />
@@ -34,12 +35,13 @@
   <ItemGroup>
     <ClInclude Include="..\..\sources\GDSIIHelperFunctions.hpp" />
     <ClInclude Include="..\..\sources\GDSIITypes.hpp" />
-    <ClInclude Include="..\..\sources\LayoutData.hpp" />
+    <ClInclude Include="..\..\sources\Layout.hpp" />
     <ClInclude Include="..\..\sources\LayoutProcessing.hpp" />
     <ClInclude Include="..\..\sources\LayoutReader.hpp" />
     <ClInclude Include="..\..\sources\LayoutReader_GDSIIascii.hpp" />
     <ClInclude Include="..\..\sources\LayoutReader_GDSIIbin.hpp" />
     <ClInclude Include="..\..\sources\LayoutReader_MSK.hpp" />
+    <ClInclude Include="..\..\sources\LayoutReader_OASIS.hpp" />
     <ClInclude Include="..\..\sources\LayoutWriter.hpp" />
     <ClInclude Include="..\..\sources\LayoutWriter_GDSIIascii.hpp" />
     <ClInclude Include="..\..\sources\LayoutWriter_GDSIIbin.hpp" />

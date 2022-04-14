@@ -1,20 +1,19 @@
 #pragma once
 
 #include <string>
-#include <vector>
 #include <fstream>
 
-#include "LayoutData.hpp"
+#include "Layout.hpp"
 
 class LayoutWriter {
 protected:
-  LayoutData   *p_data;
+  Layout       *p_data;
   std::ofstream file;
 public:
   LayoutWriter();
 public:
-  virtual bool Write(std::wstring fileName, LayoutData *layout) = 0;
+  virtual bool Write(std::wstring fileName, Layout *layout) = 0;
 };
 
-LayoutWriter *GetWriter(LayoutFileFormat format);
+LayoutWriter *GetWriter(FileFormat format);
 void FreeWriter(LayoutWriter *ptr);

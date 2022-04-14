@@ -1,14 +1,14 @@
 #include "LayoutProcessing.hpp"
 #include "LayoutReader.hpp"
 
-LayoutData* ReadLayoutFromFile(std::wstring fileName) {
+Layout* ReadLayoutFromFile(std::wstring fileName) {
   LayoutReader* p_reader = GetReader(fileName);
 
   if (!p_reader)
     return nullptr;
 
-  LayoutData* p_layout = new LayoutData;
-  p_layout->fileFormat = LayoutFileFormat::undefined;
+  Layout* p_layout = new Layout;
+  p_layout->fileFormat = FileFormat::undefined;
 
   if (!p_reader->Read(p_layout)) {
     FreeReader(p_reader);
@@ -21,13 +21,13 @@ LayoutData* ReadLayoutFromFile(std::wstring fileName) {
   return p_layout;
 }
 
-void ReadLayoutFromFile(std::wstring fileName, LayoutData* layout) {
+void ReadLayoutFromFile(std::wstring fileName, Layout* layout) {
   LayoutReader* p_reader = GetReader(fileName);
 
   if (!p_reader)
     return;
 
-  layout->fileFormat = LayoutFileFormat::undefined;
+  layout->fileFormat = FileFormat::undefined;
 
   if (!p_reader->Read(layout)) {
     FreeReader(p_reader);
@@ -38,7 +38,7 @@ void ReadLayoutFromFile(std::wstring fileName, LayoutData* layout) {
   layout->fileName = fileName;
 }
 
-bool CopyLayout(const LayoutData* src, LayoutData* dst) {
+bool CopyLayout(const Layout* src, Layout* dst) {
   if (!src)
     return false;
   if (!dst)

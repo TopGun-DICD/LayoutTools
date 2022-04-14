@@ -1,18 +1,13 @@
 /*
- * LayoutReader.hpp
+ * LayoutReader_GDSIIbin.hpp
  *
  * Layout formats implementation:
  * GDSII Binary - Dmitry A. Bulakh
- * MSK          - Mikhail S. Kotlyarov 
  */
 #pragma once
 
-#include <string>
-#include <vector>
-#include <fstream>
-
+#include "Layout.hpp"
 #include "LayoutReader.hpp"
-#include "LayoutData.hpp"
 #include "GDSIITypes.hpp"
 
 class LayoutReader_GDSIIbin : public LayoutReader {
@@ -23,7 +18,7 @@ public:
   LayoutReader_GDSIIbin();
 public:
   bool IsMyFormat(const std::wstring &fName) final;
-  bool Read(LayoutData *layout) final;
+  bool Read(Layout *layout) final;
 private:
   void ReadSection_HEADER(GDSIIRecord &_GDSIIRecord);
   void ReadSection_BEGINLIBRARY(GDSIIRecord &_GDSIIRecord);

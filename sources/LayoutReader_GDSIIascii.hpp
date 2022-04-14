@@ -2,18 +2,12 @@
  * LayoutReader.hpp
  *
  * Layout formats implementation:
- * GDSII Binary - Dmitry A. Bulakh
- * MSK          - Mikhail S. Kotlyarov 
+ * GDSII ASCII  - ???
  */
 #pragma once
 
-#include <string>
-#include <vector>
-#include <fstream>
-
+#include "Layout.hpp"
 #include "LayoutReader.hpp"
-#include "LayoutData.hpp"
-#include "GDSIITypes.hpp"
 
 class LayoutReader_GDSIIascii : public LayoutReader {
   Library      *p_activeLibrary;
@@ -23,6 +17,5 @@ public:
   LayoutReader_GDSIIascii();
 public:
   bool IsMyFormat(const std::wstring &fName) final;
-  bool Read(LayoutData *layout) final;
-private:
+  bool Read(Layout *layout) final;
 };

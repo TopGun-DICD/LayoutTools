@@ -12,19 +12,19 @@
 #include <string>
 #include <fstream>
 
-#include "LayoutData.hpp"
+#include "Layout.hpp"
 
 class LayoutReader {
 protected:
   std::wstring  fileName;
-  LayoutData   *p_data;
+  Layout       *p_layout;
   std::ifstream file;
 public:
   LayoutReader();
 public:
   virtual bool IsMyFormat(const std::wstring &fName) = 0;
-  virtual bool Read(LayoutData *layout) = 0;
+  virtual bool Read(Layout *layout) = 0;
 };
 
-LayoutReader*GetReader(const std::wstring &fName);
-void FreeReader(LayoutReader*ptr);
+LayoutReader * GetReader(const std::wstring &fName);
+void FreeReader(LayoutReader *ptr);

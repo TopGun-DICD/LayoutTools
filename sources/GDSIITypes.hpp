@@ -94,4 +94,17 @@ enum RecordType {
   rt_LIBSECUR     = 0x3b,
 };
 
+union UNION_WORD {
+  int16_t       value;
+  unsigned char byteArray[sizeof(int16_t)];
+};
 
+union UNION_DWORD {
+  int32_t       value;
+  unsigned char byteArray[sizeof(int32_t)];
+};
+
+union UNION_DOUBLE {
+  double        value;
+  unsigned char byteArray[sizeof(double)];
+};

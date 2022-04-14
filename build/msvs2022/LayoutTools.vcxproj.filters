@@ -25,6 +25,12 @@
     <Filter Include="Source Files\MSK">
       <UniqueIdentifier>{00ea4314-1abf-4338-b7ee-77074736c09a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\OASIS">
+      <UniqueIdentifier>{19158937-e384-4994-82be-e1a18854f771}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\OASIS">
+      <UniqueIdentifier>{c644a004-7d3b-416b-b249-da91951b4fa1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\sources\LayoutReader.cpp">
@@ -60,12 +66,15 @@
     <ClCompile Include="..\..\sources\LayoutProcessing.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\sources\LayoutReader_OASIS.cpp">
+      <Filter>Source Files\OASIS</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\sources\LayoutReader.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\sources\LayoutData.hpp">
+    <ClInclude Include="..\..\sources\Layout.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\sources\GDSIIHelperFunctions.hpp">
@@ -97,6 +106,9 @@
     </ClInclude>
     <ClInclude Include="..\..\sources\LayoutProcessing.hpp">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sources\LayoutReader_OASIS.hpp">
+      <Filter>Header Files\OASIS</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

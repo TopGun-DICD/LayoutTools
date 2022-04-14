@@ -1,7 +1,7 @@
 #pragma once
 
-#include "LayoutData.hpp"
+#include "Layout.hpp"
 
-LayoutData *ReadLayoutFromFile(std::wstring filename);
-void ReadLayoutFromFile(std::wstring filename, LayoutData *layout);
-bool CopyLayout(const LayoutData *src, LayoutData *dst);
+Layout *ReadLayoutFromFile(std::wstring filename);
+void ReadLayoutFromFile(std::wstring filename, Layout *layout);
+bool CopyLayout(const Layout *src, Layout *dst);

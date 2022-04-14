@@ -1,8 +1,7 @@
 /*
- * LayoutReader.hpp
+ * LayoutReader_MSK.hpp
  *
  * Layout formats implementation:
- * GDSII Binary - Dmitry A. Bulakh
  * MSK          - Mikhail S. Kotlyarov 
  */
 #pragma once
@@ -12,7 +11,7 @@
 #include <unordered_set>
 
 #include "LayoutReader.hpp"
-#include "LayoutData.hpp"
+#include "Layout.hpp"
 
 class LayoutReader_MSK:public LayoutReader
 {
@@ -25,7 +24,7 @@ public:
 	LayoutReader_MSK() :p_active_library(nullptr),p_active_element(nullptr),p_active_geometry_item(nullptr) {}
 
 	bool            IsMyFormat(const std::wstring& fName) override final;
-	bool            Read(LayoutData* layout) override final;
+	bool            Read(Layout *layout) override final;
 private:
 	inline bool     read_Rectangle_coords(const std::string& line, Coord& left_bot, Coord& right_top, std::string& layer_name);
 	void            fill_GeometryItem_box(Geometry* filling_box, const Coord& right_top, const Coord& left_bot, const uint16_t layer_num);

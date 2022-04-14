@@ -99,7 +99,7 @@ std::string LayoutReader_MSK::receive_element_name()
       return wstring_to_utf8(temp_fName.substr(start_name_pos + 1, last_comma_pos - start_name_pos - 1));
     }
 }
-bool LayoutReader_MSK::Read(LayoutData* layout)
+bool LayoutReader_MSK::Read(Layout* layout)
 {
     if (!layout)
         return false;
@@ -107,12 +107,12 @@ bool LayoutReader_MSK::Read(LayoutData* layout)
     file.open(fileName);
     if (!file.is_open())
         return false;
-    p_data = layout;
+    p_layout = layout;
   
     p_active_library = new Library;
     p_active_element = new Element;
     
-    p_data->fileName = this->fileName;
+    p_layout->fileName = this->fileName;
     p_active_element->name = receive_element_name();
     p_active_library->name = wstring_to_utf8(fileName);
     //Переменная для хранения одной строки из файла
@@ -153,12 +153,12 @@ bool LayoutReader_MSK::Read(LayoutData* layout)
     }
   
     p_active_library->elements.push_back(p_active_element);
-    p_data->libraries.push_back(p_active_library);
+    p_layout->libraries.push_back(p_active_library);
    
     file.close();
 
     layout->fileName = fileName;
-    layout->fileFormat = LayoutFileFormat::MSK;
+    layout->fileFormat = FileFormat::MSK;
 
     layout->libraries[0]->elements[0]->min = layout->libraries[0]->elements[0]->geometries[0]->min;
     layout->libraries[0]->elements[0]->max = layout->libraries[0]->elements[0]->geometries[0]->max;
@@ -173,6 +173,9 @@ bool LayoutReader_MSK::Read(LayoutData* layout)
       if (layout->libraries[0]->elements[0]->max.y < layout->libraries[0]->elements[0]->geometries[i]->max.y)
         layout->libraries[0]->elements[0]->max.y = layout->libraries[0]->elements[0]->geometries[i]->max.y;
     }
+
+    layout->libraries[0]->min = layout->libraries[0]->elements[0]->min;
+    layout->libraries[0]->max = layout->libraries[0]->elements[0]->max;
 
     return true; 
 }

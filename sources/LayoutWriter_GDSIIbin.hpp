@@ -1,17 +1,10 @@
-#pragma once
-
-#include <string>
-#include <vector>
-#include <fstream>
-
 #include "LayoutWriter.hpp"
-#include "LayoutData.hpp"
 
 class LayoutWriter_GDSIIbin : public LayoutWriter {
 public:
   LayoutWriter_GDSIIbin();
 public:
-  bool Write(std::wstring fileName, LayoutData *layout) final;
+  bool Write(std::wstring fileName, Layout *layout) final;
 private:
   void WriteSection_HEADER();
 

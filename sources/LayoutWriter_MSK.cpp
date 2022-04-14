@@ -15,7 +15,7 @@ LayoutWriter_MSK::LayoutWriter_MSK() {
 
 }
 
-bool LayoutWriter_MSK::Write(std::wstring fileName, LayoutData *layout) {
+bool LayoutWriter_MSK::Write(std::wstring fileName, Layout *layout) {
   if (!layout)
     return false;
   

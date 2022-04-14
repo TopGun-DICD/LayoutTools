@@ -25,6 +25,12 @@
     <Filter Include="Source Files\MSK">
       <UniqueIdentifier>{6afc54dd-804d-4d8c-b1fb-eb2d4ad5fed1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\OASIS">
+      <UniqueIdentifier>{44436e60-fe93-4221-8873-025d695061cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\OASIS">
+      <UniqueIdentifier>{cd346805-f7ff-4f92-b793-7c355ebb6fc0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\sources\main.cpp">
@@ -60,11 +66,11 @@
     <ClCompile Include="..\..\sources\LayoutProcessing.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\sources\LayoutReader_OASIS.cpp">
+      <Filter>Source Files\OASIS</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\sources\LayoutData.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\sources\LayoutReader.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -97,6 +103,12 @@
     </ClInclude>
     <ClInclude Include="..\..\sources\LayoutProcessing.hpp">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sources\Layout.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sources\LayoutReader_OASIS.hpp">
+      <Filter>Header Files\OASIS</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
