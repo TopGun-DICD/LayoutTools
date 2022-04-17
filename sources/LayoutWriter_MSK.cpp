@@ -1,8 +1,8 @@
 /*
  * LayoutWriter_GDSIIBin.cpp
  *
- * Calma binary GDS II file format writer by Dmitry A. Bulakh
- * 20.03.2021
+ * MSK file format writer by <author>
+ * <date>
  */
 
 #include "LayoutWriter_MSK.hpp"

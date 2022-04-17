@@ -31,6 +31,24 @@
     <Filter Include="Source Files\OASIS">
       <UniqueIdentifier>{cd346805-f7ff-4f92-b793-7c355ebb6fc0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\CIF">
+      <UniqueIdentifier>{e91f0cac-37bc-4c36-a903-1cc2c86fbe75}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\CIF">
+      <UniqueIdentifier>{ab38004b-25e1-40f0-9743-8b732446911b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\DXF">
+      <UniqueIdentifier>{b51311ed-9269-4d89-830f-58f318d6408a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\DXF">
+      <UniqueIdentifier>{e50fbf58-bf6e-4277-9bc8-327b236126fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\MAG">
+      <UniqueIdentifier>{8aff04aa-ff22-4b8c-8a0f-3ffaec07ce38}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\MAG">
+      <UniqueIdentifier>{d3bad878-fdf9-48b4-aa96-80e1e35037f5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\sources\main.cpp">
@@ -67,6 +85,27 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\sources\LayoutReader_OASIS.cpp">
+      <Filter>Source Files\OASIS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\sources\LayoutReader_CIF.cpp">
+      <Filter>Source Files\CIF</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\sources\LayoutReader_DXF.cpp">
+      <Filter>Source Files\DXF</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\sources\LayoutReader_MAG.cpp">
+      <Filter>Source Files\MAG</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\sources\LayoutWriter_CIF.cpp">
+      <Filter>Source Files\CIF</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\sources\LayoutWriter_DXF.cpp">
+      <Filter>Source Files\DXF</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\sources\LayoutWriter_MAG.cpp">
+      <Filter>Source Files\MAG</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\sources\LayoutWriter_OASIS.cpp">
       <Filter>Source Files\OASIS</Filter>
     </ClCompile>
   </ItemGroup>
@@ -108,6 +147,27 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\sources\LayoutReader_OASIS.hpp">
+      <Filter>Header Files\OASIS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sources\LayoutReader_CIF.hpp">
+      <Filter>Header Files\CIF</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sources\LayoutReader_DXF.hpp">
+      <Filter>Header Files\DXF</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sources\LayoutReader_MAG.hpp">
+      <Filter>Header Files\MAG</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sources\LayoutWriter_CIF.hpp">
+      <Filter>Header Files\CIF</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sources\LayoutWriter_DXF.hpp">
+      <Filter>Header Files\DXF</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sources\LayoutWriter_MAG.hpp">
+      <Filter>Header Files\MAG</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sources\LayoutWriter_OASIS.hpp">
       <Filter>Header Files\OASIS</Filter>
     </ClInclude>
   </ItemGroup>
