@@ -81,5 +81,10 @@ private:
   //void ReadSection_SRFNAME(GDSIIRecord &_GDSIIRecord);
   //void ReadSection_LIBSECUR(GDSIIRecord &_GDSIIRecord);
 
-  bool ResolveReferences();
+  void ApplyLayoutReaderOptionsToActiveElement();
+  bool PostProcessLayout();
+private:
+  bool ResolveStructureReference(Reference* p_reference);
+  bool EnumerateLayers();
+  void EvaluateBoundingBox();
 };

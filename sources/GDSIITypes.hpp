@@ -1,15 +1,9 @@
 #pragma once
 
-// [1] http://boolean.klaasholwerda.nl/interface/bnf/gdsformat.html#recordover
-// [2] https://github.com/HomerReid/libGDSII/blob/master/lib/ReadGDSIIFile.cc
-// [3] https://www.artwork.com/gdsii/gdsii/index.htm
-// [4] https://gitlab.com/stone.code/liblayout/-/blob/master/gdsii_write.cpp
-// [5] https://github.com/heitzmann/gdstk/blob/master/src/gdsii.h
-
 struct GDSIIRecord {
-  int16_t length;
-  int8_t  recordType,
-          dataType;
+  uint16_t  length;
+  int8_t    recordType,
+            dataType;
 };
 
 struct DateTime {

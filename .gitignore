@@ -43,3 +43,6 @@ build/msvs2019/x64/
 bin/report.txt
 bin/tests/testDesign.gds
 bin/tests/testDesign.txt
+bin/tests/PASSIVE.gds
+bin/tests/PASSIVE.gds.txt
+bin/tests/test2.gds

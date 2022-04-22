@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 
 #include "Layout.hpp"
 #include "LayoutReader.hpp"
@@ -9,12 +10,13 @@ int main(int argc, char *argv[]) {
   Layout  layout;
 
   //std::wstring fileName = L"tests/inv.gds";
+  std::wstring fileName = L"tests/passive.gds";
   //std::wstring fileName = L"output.gds";
   //std::wstring fileName = L"tests/nand2.gds";
   //std::wstring fileName = L"tests/xor.gds";
   //std::wstring fileName = L"tests/1Kpolyg.gds";
   //std::wstring fileName = L"tests/testDesign.gds";
-  std::wstring fileName = L"tests/cmos.msk";
+  //std::wstring fileName = L"tests/cmos.msk";
   //std::wstring fileName = L"tests/inv.msk";
 
   LayoutReader *p_reader = GetReader(fileName);
@@ -36,10 +38,10 @@ int main(int argc, char *argv[]) {
     for(size_t j = 0; j < layout.libraries[i]->elements.size(); ++j)
       std::cout << "      * " << layout.libraries[i]->elements[j]->name << " (contains " << layout.libraries[i]->elements[j]->geometries.size() << " geometries)" << std::endl;
     std::cout << "    Library [" << i << "] also contains " << layout.libraries[i]->layers.size() << " layers (in order of appearance):" << std::endl;
-    std::cout << "      { ";
+    //std::cout << "      { ";
     for (size_t j = 0; j < layout.libraries[i]->layers.size(); ++j)
-      std::cout << layout.libraries[i]->layers[j].layer << " ";
-    std::cout << " }" << std::endl;
+      std::cout << std::setw(5) << layout.libraries[i]->layers[j].layer << " [" << layout.libraries[i]->layers[j].dataType << "]" << std::endl;
+    //std::cout << " }" << std::endl;
   }
 
   /*
