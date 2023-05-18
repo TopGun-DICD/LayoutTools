@@ -8,7 +8,7 @@ LayoutReader_OASIS::LayoutReader_OASIS() : p_activeLibrary(nullptr), p_activeEle
 
 }
 
-bool LayoutReader_OASIS::IsMyFormat(const std::wstring &fName) {
+bool LayoutReader_OASIS::IsMyFormat(const STR_CLASS &fName) {
   fileName = fName;
 
   if (fName.substr(fName.find_last_of(L".") + 1) == L"oa" || fName.substr(fName.find_last_of(L".") + 1) == L"oas")

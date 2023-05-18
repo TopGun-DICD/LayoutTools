@@ -12,7 +12,7 @@ LayoutReader_CIF::LayoutReader_CIF() : p_activeLibrary(nullptr), p_activeElement
 
 }
 
-bool LayoutReader_CIF::IsMyFormat(const std::wstring &fName) {
+bool LayoutReader_CIF::IsMyFormat(const STR_CLASS &fName) {
   fileName = fName;
 
   if (fName.substr(fName.find_last_of(L".") + 1) == L"cif")

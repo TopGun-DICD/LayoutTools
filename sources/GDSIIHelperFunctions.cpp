@@ -69,7 +69,6 @@ void DeNormalize_DWORD(int32_t &_value) {
 
 void Normalize_DOUBLE(double &_value) {
   UNION_DOUBLE u;
-  unsigned char tempByte = 0;
 
   u.value = _value;
 

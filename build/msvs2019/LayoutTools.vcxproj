@@ -185,6 +185,7 @@
     <ClInclude Include="..\..\sources\LayoutWriter_MAG.hpp" />
     <ClInclude Include="..\..\sources\LayoutWriter_MSK.hpp" />
     <ClInclude Include="..\..\sources\LayoutWriter_OASIS.hpp" />
+    <ClInclude Include="..\..\sources\LinuxCompat.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

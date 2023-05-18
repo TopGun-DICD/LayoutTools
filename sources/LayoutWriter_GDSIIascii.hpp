@@ -1,3 +1,9 @@
+/*
+ * LayoutWriter_GDSIIascii.hpp
+ *
+ * Layout formats implementation:
+ * GDSII ASCII - Artem K. Efremov
+ */
 #pragma once
 
 #include <string>
@@ -11,6 +17,6 @@ class LayoutWriter_GDSIIascii : public LayoutWriter {
 public:
   LayoutWriter_GDSIIascii();
 public:
-  bool Write(std::wstring fileName, Layout *layout) final;
+  bool Write(const STR_CLASS &fileName, Layout *layout) final;
 private:
 };

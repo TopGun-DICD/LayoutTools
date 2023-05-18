@@ -170,5 +170,8 @@
     <ClInclude Include="..\..\sources\LayoutWriter_OASIS.hpp">
       <Filter>Header Files\OASIS</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\sources\LinuxCompat.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

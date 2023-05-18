@@ -15,7 +15,7 @@ LayoutWriter_GDSIIbin::LayoutWriter_GDSIIbin() {
 
 }
 
-bool LayoutWriter_GDSIIbin::Write(std::wstring fileName, Layout *layout) {
+bool LayoutWriter_GDSIIbin::Write(const STR_CLASS &fileName, Layout *layout) {
   if (!layout)
     return false;
   
@@ -107,7 +107,7 @@ void LayoutWriter_GDSIIbin::WriteSection_BEGINLIBRARY() {
 }
 
 void LayoutWriter_GDSIIbin::WriteSection_LIBNAME(Library *lib) {
-  GDSIIRecord gdsiiRecord = { static_cast <int16_t>(sizeof(GDSIIRecord)) + static_cast<int16_t>(lib->name.length()) , rt_LIBNAME , 6 };
+  GDSIIRecord gdsiiRecord = { static_cast<uint16_t> (sizeof(GDSIIRecord) + lib->name.length()), rt_LIBNAME, 6 };
   // Write Header
   DeNormalize_WORD((int16_t&)gdsiiRecord.length);
   file.write(reinterpret_cast<char *>(&gdsiiRecord), sizeof(GDSIIRecord));
@@ -165,7 +165,7 @@ void LayoutWriter_GDSIIbin::WriteSection_STRNAME(Element *element) {
   size_t actualNameLength = element->name.length();             //static_cast<int>(element->name.length());
   if(element->name.length() % 4 != 0)
     actualNameLength = ((element->name.length() / 4) + 1) * 4;  //((static_cast<int>(element->name.length()) / 4) + 1) * 4;
-  GDSIIRecord gdsiiRecord = { static_cast <int16_t>(sizeof(GDSIIRecord)) + static_cast<int16_t>(actualNameLength) , rt_STRNAME , 6 };
+  GDSIIRecord gdsiiRecord = { static_cast <uint16_t>(sizeof(GDSIIRecord) + actualNameLength), rt_STRNAME, 6 };
   // Write Header
   DeNormalize_WORD((int16_t&)gdsiiRecord.length);
   file.write(reinterpret_cast<char *>(&gdsiiRecord), sizeof(GDSIIRecord));

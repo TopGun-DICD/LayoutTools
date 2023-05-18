@@ -15,7 +15,7 @@ LayoutWriter_OASIS::LayoutWriter_OASIS() {
 
 }
 
-bool LayoutWriter_OASIS::Write(std::wstring fileName, Layout *layout) {
+bool LayoutWriter_OASIS::Write(const STR_CLASS &fileName, Layout *layout) {
   if (!layout)
     return false;
   

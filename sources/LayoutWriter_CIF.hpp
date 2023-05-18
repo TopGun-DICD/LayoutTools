@@ -9,7 +9,7 @@ class LayoutWriter_CIF : public LayoutWriter {
 public:
   LayoutWriter_CIF();
 public:
-  bool Write(std::wstring fileName, Layout* layout) final;
+  bool Write(const STR_CLASS &fileName, Layout* layout) final;
 private:
 };
 

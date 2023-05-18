@@ -3,7 +3,9 @@
  *
  * Layout formats implementation:
  * GDSII Binary - Dmitry A. Bulakh
- *                see LayoutReader_GDSIIBin.hpp
+ *                see LayoutReader_GDSIIbin.hpp
+ * GDSII ASCII  - Artem K. Efremov
+ *                see LayoutReader_GDSascii
  * MSK          - Mikhail S. Kotlyarov  
  *                see LayoutReader_MSK.hpp
  */
@@ -14,17 +16,19 @@
 
 #include "Layout.hpp"
 
+#include "LinuxCompat.hpp"
+
 class LayoutReader {
 protected:
-  std::wstring  fileName;
+  STR_CLASS     fileName;
   Layout       *p_layout;
   std::ifstream file;
 public:
   LayoutReader();
 public:
-  virtual bool IsMyFormat(const std::wstring &fName) = 0;
+  virtual bool IsMyFormat(const STR_CLASS &fName) = 0;
   virtual bool Read(Layout *layout) = 0;
 };
 
-LayoutReader * GetReader(const std::wstring &fName);
+LayoutReader * GetReader(const STR_CLASS &fName);
 void FreeReader(LayoutReader *ptr);

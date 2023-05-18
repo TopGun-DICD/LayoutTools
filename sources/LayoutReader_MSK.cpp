@@ -11,7 +11,7 @@
 #include <unordered_map>
 #include <codecvt>
 
-bool LayoutReader_MSK::IsMyFormat(const std::wstring& fName)
+bool LayoutReader_MSK::IsMyFormat(const STR_CLASS &fName)
 {
     size_t comma_pos = fName.find_last_of(L".");
     if (comma_pos == std::string::npos)

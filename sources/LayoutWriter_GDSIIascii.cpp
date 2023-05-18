@@ -15,7 +15,7 @@ LayoutWriter_GDSIIascii::LayoutWriter_GDSIIascii() {
 
 }
 
-bool LayoutWriter_GDSIIascii::Write(std::wstring fileName, Layout* layout) {
+bool LayoutWriter_GDSIIascii::Write(const STR_CLASS &fileName, Layout *layout) {
   if (!layout)
     return false;
 

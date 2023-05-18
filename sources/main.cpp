@@ -10,7 +10,8 @@ int main(int argc, char *argv[]) {
   Layout  layout;
 
   //std::wstring fileName = L"tests/inv.gds";
-  std::wstring fileName = L"tests/passive.gds";
+  //std::wstring fileName = L"tests/4004.gds";
+  //std::wstring fileName = L"tests/passive.gds";
   //std::wstring fileName = L"output.gds";
   //std::wstring fileName = L"tests/nand2.gds";
   //std::wstring fileName = L"tests/xor.gds";
@@ -18,6 +19,15 @@ int main(int argc, char *argv[]) {
   //std::wstring fileName = L"tests/testDesign.gds";
   //std::wstring fileName = L"tests/cmos.msk";
   //std::wstring fileName = L"tests/inv.msk";
+  
+  //std::wstring fileName = L"tests/xor.gds.txt";
+
+  if (argc != 2) {
+    std::cerr << "Argument (gdsii layout file name) was not passed" << std::endl;
+    return EXIT_FAILURE;
+  }
+  std::string fname = argv[1];
+  std::wstring fileName(fname.begin(), fname.end());
 
   LayoutReader *p_reader = GetReader(fileName);
   if (!p_reader) {
@@ -31,6 +41,7 @@ int main(int argc, char *argv[]) {
   }
   FreeReader(p_reader);
 
+  /*
   std::wcout << "Input file " << fileName << " has " << layout.libraries.size() << " library(ies)" << std::endl;
 
   for (size_t i = 0; i < layout.libraries.size(); ++i) {
@@ -42,6 +53,25 @@ int main(int argc, char *argv[]) {
     for (size_t j = 0; j < layout.libraries[i]->layers.size(); ++j)
       std::cout << std::setw(5) << layout.libraries[i]->layers[j].layer << " [" << layout.libraries[i]->layers[j].dataType << "]" << std::endl;
     //std::cout << " }" << std::endl;
+  }
+  //*/
+  
+  std::wcout << "<Cell name>;<Geometries>;<Area>;<most difficult polygon>" << std::endl;
+  
+  for (size_t i = 0; i < layout.libraries.size(); ++i) {
+    for (size_t j = 0; j < layout.libraries[i]->elements.size(); ++j) {
+      std::cout << "Cell name = " << layout.libraries[i]->elements[j]->name
+                << " Geometries = " << layout.libraries[i]->elements[j]->geometries.size()
+                << " Cell area = " << (int64_t)(layout.libraries[i]->elements[j]->max.x - layout.libraries[i]->elements[j]->min.x) * (int64_t)(layout.libraries[i]->elements[j]->max.y - layout.libraries[i]->elements[j]->min.y);
+      //std::cout << layout.libraries[i]->elements[j]->name << ";" << layout.libraries[i]->elements[j]->geometries.size() << ";"
+      //          << (int64_t)(layout.libraries[i]->elements[j]->max.x - layout.libraries[i]->elements[j]->min.x) * (int64_t)(layout.libraries[i]->elements[j]->max.y - layout.libraries[i]->elements[j]->min.y) << ";";
+      size_t points = 0;
+      for (size_t k = 0; k < layout.libraries[i]->elements[j]->geometries.size(); ++k) {
+        if (layout.libraries[i]->elements[j]->geometries[k]->coords.size() > points)
+          points = layout.libraries[i]->elements[j]->geometries[k]->coords.size();
+      }
+      std::cout << " Max points = "  << points << std::endl;
+    }
   }
 
   /*

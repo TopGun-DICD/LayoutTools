@@ -1,8 +1,10 @@
 #include "LayoutReader_GDSIIbin.hpp"
 #include "GDSIIHelperFunctions.hpp"
 
+#ifdef _MSC_VER
 #pragma warning(disable: 26451) // Warning C26451 Arithmetic overflow : Using operator '+' on a 4 byte value and then casting the result to a 8 byte value. 
                                 // Cast the value to the wider type before calling operator '+' to avoid overflow(io.2).
+#endif
 
 //!!! Don't touch these lines on comparison
 // [1] http://boolean.klaasholwerda.nl/interface/bnf/gdsformat.html#recordover
@@ -12,14 +14,23 @@
 // [5] https://github.com/KLayout/klayout/tree/master/src/plugins/streamers/gds2/db_plugin
 // [6] https://github.com/KLayout/klayout/tree/master/src/plugins/streamers/gds2/db_plugin
 
+#include "LinuxCompat.hpp"
+
+#include <string.h>
+
 LayoutReader_GDSIIbin::LayoutReader_GDSIIbin() : p_activeLibrary(nullptr), p_activeElement(nullptr), p_activeGeometry(nullptr) {
 }
 
-bool LayoutReader_GDSIIbin::IsMyFormat(const std::wstring &fName) {
+bool LayoutReader_GDSIIbin::IsMyFormat(const STR_CLASS &fName) {
   fileName = fName;
 
+#ifdef _MSC_VER
   if (fileName.substr(fileName.find_last_of(L".") + 1) != L"gds")
     if (fileName.substr(fileName.find_last_of(L".") + 1) != L"gdsii")
+#else
+  if (fileName.substr(fileName.find_last_of(".") + 1) != "gds")
+    if (fileName.substr(fileName.find_last_of(".") + 1) != "gdsii")
+#endif
       return false;
 
   file.open(fileName, std::ios::in | std::ios::binary);
@@ -990,14 +1001,15 @@ bool LayoutReader_GDSIIbin::EnumerateLayers() {
   for (size_t i = 0; i < p_layout->libraries.size(); ++i) {
     p_lib = p_layout->libraries[i];
     for (size_t j = 0; j < p_lib->layers.size(); ++j) {
-      for (size_t k = 1; k < p_lib->layers.size(); ++k) {
+      for (size_t k = 1; k < p_lib->layers.size() - j; ++k) {
         if (p_lib->layers[k].layer < p_lib->layers[k - 1].layer)
-          std::swap(p_lib->layers[k].layer, p_lib->layers[k - 1].layer);
+          std::swap(p_lib->layers[k], p_lib->layers[k - 1]);
         if ((p_lib->layers[k].layer == p_lib->layers[k - 1].layer) && (p_lib->layers[k].dataType < p_lib->layers[k - 1].dataType))
-          std::swap(p_lib->layers[k].layer, p_lib->layers[k - 1].layer);
+          std::swap(p_lib->layers[k], p_lib->layers[k - 1]);
       }
     }
   }
+
   return true;
 }
 

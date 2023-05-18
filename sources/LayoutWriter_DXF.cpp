@@ -15,7 +15,7 @@ LayoutWriter_DXF::LayoutWriter_DXF() {
 
 }
 
-bool LayoutWriter_DXF::Write(std::wstring fileName, Layout *layout) {
+bool LayoutWriter_DXF::Write(const STR_CLASS &fileName, Layout *layout) {
   if (!layout)
     return false;
   

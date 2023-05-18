@@ -15,7 +15,7 @@ LayoutWriter_MAG::LayoutWriter_MAG() {
 
 }
 
-bool LayoutWriter_MAG::Write(std::wstring fileName, Layout *layout) {
+bool LayoutWriter_MAG::Write(const STR_CLASS &fileName, Layout *layout) {
   if (!layout)
     return false;
   

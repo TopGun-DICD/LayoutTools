@@ -15,7 +15,7 @@ LayoutWriter_CIF::LayoutWriter_CIF() {
 
 }
 
-bool LayoutWriter_CIF::Write(std::wstring fileName, Layout *layout) {
+bool LayoutWriter_CIF::Write(const STR_CLASS &fileName, Layout *layout) {
   if (!layout)
     return false;
   

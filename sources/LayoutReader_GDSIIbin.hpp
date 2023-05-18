@@ -17,7 +17,7 @@ class LayoutReader_GDSIIbin : public LayoutReader {
 public:
   LayoutReader_GDSIIbin();
 public:
-  bool IsMyFormat(const std::wstring &fName) final;
+  bool IsMyFormat(const STR_CLASS &fName) final;
   bool Read(Layout *layout) final;
 private:
   void ReadSection_HEADER(GDSIIRecord &_GDSIIRecord);

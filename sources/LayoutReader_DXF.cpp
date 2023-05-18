@@ -6,7 +6,7 @@ LayoutReader_DXF::LayoutReader_DXF() : p_activeLibrary(nullptr), p_activeElement
 
 }
 
-bool LayoutReader_DXF::IsMyFormat(const std::wstring &fName) {
+bool LayoutReader_DXF::IsMyFormat(const STR_CLASS &fName) {
   fileName = fName;
 
   if (fName.substr(fName.find_last_of(L".") + 1) == L"cif")

@@ -5,6 +5,8 @@
 
 #include "Layout.hpp"
 
+#include "LinuxCompat.hpp"
+
 class LayoutWriter {
 protected:
   Layout       *p_data;
@@ -12,7 +14,7 @@ protected:
 public:
   LayoutWriter();
 public:
-  virtual bool Write(std::wstring fileName, Layout *layout) = 0;
+  virtual bool Write(const STR_CLASS &fileName, Layout *layout) = 0;
 };
 
 LayoutWriter *GetWriter(FileFormat format);

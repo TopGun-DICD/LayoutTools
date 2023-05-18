@@ -9,7 +9,7 @@
 
 LayoutReader::LayoutReader() : p_layout(nullptr) {}
 
-LayoutReader* GetReader(const std::wstring& fName) {
+LayoutReader* GetReader(const STR_CLASS &fName) {
   LayoutReader* p_reader = nullptr;
 
   // Check if file is in CIF format

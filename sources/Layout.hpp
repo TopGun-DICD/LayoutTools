@@ -37,7 +37,7 @@ struct Geometry {
   std::vector<Property> properties;
   std::vector<Coord>    coords;
 public:
-  Geometry(GeometryType t) : type(t), layer(-1), min({ -1, -1 }), max({-1, -1}) {}
+  Geometry(GeometryType t) : type(t), layer(-1), min({ INT32_MAX, INT32_MAX }), max({ INT32_MIN, INT32_MIN }) {}
 };
 
 struct Polygon : public Geometry {
@@ -91,7 +91,7 @@ struct Element {
   std::string             name;
   std::vector<Geometry *> geometries;
 public:
-  Element() : isFlat(true), min({ -1, -1 }), max({-1, -1}), nested(false) {}
+  Element() : isFlat(true), min({ INT32_MAX, INT32_MAX }), max({ INT32_MIN, INT32_MIN }), nested(false) {}
   ~Element() {
     for (size_t i = 0; i < geometries.size(); ++i) {
       delete geometries[i];
@@ -116,7 +116,7 @@ struct Library {
   std::vector<Element *>  elements;
   std::vector<Layer>      layers;
 public:
-  Library() : units({ 0.001 , 1e-9}), min({ -1, -1 }), max({ -1, -1 }) {
+  Library() : units({ 0.001 , 1e-9}), min({ INT32_MAX, INT32_MAX }), max({ INT32_MIN, INT32_MIN }) {
   }
  ~Library() {
     for (size_t i = 0; i < elements.size(); ++i) {
@@ -139,8 +139,10 @@ enum class FileFormat {
   OASIS,
 };
 
+#include "LinuxCompat.hpp"
+
 struct Layout {
-  std::wstring            fileName;
+  STR_CLASS               fileName;
   FileFormat              fileFormat;
   std::vector<Library *>  libraries;
 public:

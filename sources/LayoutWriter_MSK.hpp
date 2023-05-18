@@ -9,6 +9,6 @@ class LayoutWriter_MSK : public LayoutWriter {
 public:
   LayoutWriter_MSK();
 public:
-  bool Write(std::wstring fileName, Layout *layout) final;
+  bool Write(const STR_CLASS &fileName, Layout *layout) final;
 private:
 };
