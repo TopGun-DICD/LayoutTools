@@ -1,8 +1,8 @@
 /*
  * LayoutReader_GDSIIascii.hpp
  *
- * Layout formats implementation:
- * GDSII ASCII - Artem K. Efremov
+ * CALMA GDSII stream format reader by Artem K. Efremov
+ * 21.04.2023
  */
 #pragma once
 

@@ -1,8 +1,8 @@
 /*
  * LayoutReader_GDSIIbin.hpp
  *
- * Layout formats implementation:
- * GDSII Binary - Dmitry A. Bulakh
+ * CALMA GDSII stream format reader by Dmitry A. Bulakh
+ * 04.03.2020
  */
 #pragma once
 

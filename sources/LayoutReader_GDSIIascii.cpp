@@ -1,3 +1,9 @@
+/*
+ * LayoutReader_GDSIIascii.hpp
+ *
+ * CALMA GDSII stream format reader by Artem K. Efremov
+ * 21.04.2023
+ */
 #include "LayoutReader_GDSIIascii.hpp"
 
 #include <ctime>

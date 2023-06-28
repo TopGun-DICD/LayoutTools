@@ -1,9 +1,16 @@
+/*
+ * LayoutReader_GDSIIbin.cpp
+ *
+ * CALMA GDSII stream format reader by Dmitry A. Bulakh
+ * 04.03.2020
+ */
 #include "LayoutReader_GDSIIbin.hpp"
 #include "GDSIIHelperFunctions.hpp"
 
 #ifdef _MSC_VER
-#pragma warning(disable: 26451) // Warning C26451 Arithmetic overflow : Using operator '+' on a 4 byte value and then casting the result to a 8 byte value. 
-                                // Cast the value to the wider type before calling operator '+' to avoid overflow(io.2).
+#pragma warning(disable: 26451) 
+// Warning C26451 Arithmetic overflow : Using operator '+' on a 4 byte value and then casting the result to a 8 byte value. 
+// Cast the value to the wider type before calling operator '+' to avoid overflow(io.2).
 #endif
 
 //!!! Don't touch these lines on comparison
@@ -12,7 +19,6 @@
 // [3] https://github.com/icdop/gds2gdt/blob/main/libsrc/libgds/gdsdata.h
 // [4] https://www.artwork.com/gdsii/gdsii/index.htm
 // [5] https://github.com/KLayout/klayout/tree/master/src/plugins/streamers/gds2/db_plugin
-// [6] https://github.com/KLayout/klayout/tree/master/src/plugins/streamers/gds2/db_plugin
 
 #include "LinuxCompat.hpp"
 

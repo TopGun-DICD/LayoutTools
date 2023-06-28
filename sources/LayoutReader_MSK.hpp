@@ -1,8 +1,8 @@
 /*
  * LayoutReader_MSK.hpp
  *
- * Layout formats implementation:
- * MSK          - Mikhail S. Kotlyarov 
+ * uWind (MicroWind) MSK file format reader by Mikhail S. Kotlyarov
+ * updated 08.11.2022
  */
 #pragma once
 
@@ -16,21 +16,27 @@
 class LayoutReader_MSK:public LayoutReader
 {
 private:
-	Library*			p_active_library;
-	Element*			p_active_element;
-	Geometry*     p_active_geometry_item;
+  Library  *p_activeLibrary;
+  Element  *p_activeElement;
+  Geometry *p_active_geometry_item;
 
 public:
-	LayoutReader_MSK() :p_active_library(nullptr),p_active_element(nullptr),p_active_geometry_item(nullptr) {}
+  LayoutReader_MSK() : p_activeLibrary(nullptr), p_activeElement(nullptr), p_active_geometry_item(nullptr) {}
 
-	bool            IsMyFormat(const std::wstring& fName) override final;
-	bool            Read(Layout *layout) override final;
+  bool            IsMyFormat(const STR_CLASS &fName) override final;
+  bool            Read(Layout *layout) override final;
 private:
-	inline bool     read_Rectangle_coords(const std::string& line, Coord& left_bot, Coord& right_top, std::string& layer_name);
-	void            fill_GeometryItem_box(Geometry* filling_box, const Coord& right_top, const Coord& left_bot, const uint16_t layer_num);
-	inline int32_t  calculate_delta(const int32_t first, const int32_t second);
-	int16_t         calculate_MSK_layer_num(const std::string& layer_name);
-	inline int32_t  find_layer_num(const std::vector <Layer>& all_layers, const uint16_t layer_num);
-	std::string     receive_element_name();
 
+  void ReadSectionRectangle(const std::string &FileLine);
+  void ReadBoundingBox(const std::string &FileLine);
+  void ReadTitle(const std::string &FileLine);
+
+  inline bool     ReadRecCoords(const std::string &line, Coord &left_bot, Coord &right_top, std::string &layer_name);
+  void            FillBox(Geometry* filling_box, const Coord &right_top, const Coord &left_bot, uint16_t layer_num);
+  std::string     GetElemName();
+
+  int16_t         ConvertMskLayerNum(const std::string &layer_name);
+  std::vector<Layer>::iterator FindByLayerNum(std::vector <Layer> &all_layers, int16_t layer_num);
+
+  inline int32_t  calcDelta(int32_t first, int32_t second);
 };

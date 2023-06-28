@@ -1,7 +1,7 @@
 /*
- * LayoutWriter_GDSIIBin.cpp
+ * LayoutWriter_GDSIIascii.cpp
  *
- * Calma binary GDS II file format writer by Dmitry A. Bulakh
+ * Calma ASCII GDSII file format writer by Artem K. Efremov
  * 20.03.2021
  */
 

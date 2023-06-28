@@ -1,8 +1,8 @@
 /*
  * LayoutWriter_GDSIIascii.hpp
  *
- * Layout formats implementation:
- * GDSII ASCII - Artem K. Efremov
+ * Calma ASCII GDSII file format writer by Artem K. Efremov
+ * 20.03.2021
  */
 #pragma once
 
