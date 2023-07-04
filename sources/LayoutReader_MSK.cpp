@@ -4,7 +4,6 @@
  * uWind (MicroWind) MSK file format reader by Mikhail S. Kotlyarov
  * updated 08.11.2022
  */
-
 #include "LayoutReader_MSK.hpp"
 #define _CRT_SECURE_NO_WARNINGS
 

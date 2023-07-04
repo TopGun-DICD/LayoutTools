@@ -1,9 +1,11 @@
 /*
- * LayoutWriter_GDSIIascii.hpp
+ * LayoutWriter_GDSIIbin.hpp
  *
  * Calma binary GDSII file format writer by Dmitry A. Bulakh
  * 20.03.2020
  */
+#pragma once
+
 #include "LayoutWriter.hpp"
 
 class LayoutWriter_GDSIIbin : public LayoutWriter {

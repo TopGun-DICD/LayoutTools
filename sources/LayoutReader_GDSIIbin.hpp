@@ -1,7 +1,7 @@
 /*
  * LayoutReader_GDSIIbin.hpp
  *
- * CALMA GDSII stream format reader by Dmitry A. Bulakh
+ * Calma binary GDSII file format reader by Dmitry A. Bulakh
  * 04.03.2020
  */
 #pragma once

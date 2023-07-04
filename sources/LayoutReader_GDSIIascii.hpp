@@ -1,7 +1,7 @@
 /*
  * LayoutReader_GDSIIascii.hpp
  *
- * CALMA GDSII stream format reader by Artem K. Efremov
+ * Calma ASCII GDSII file format reader by Artem K. Efremov
  * 21.04.2023
  */
 #pragma once
