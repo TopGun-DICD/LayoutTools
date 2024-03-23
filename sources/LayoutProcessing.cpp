@@ -1,7 +1,7 @@
 #include "LayoutProcessing.hpp"
 #include "LayoutReader.hpp"
 
-Layout* ReadLayoutFromFile(std::wstring fileName) {
+Layout* ReadLayoutFromFile(const STR_CLASS &fileName) {
   LayoutReader* p_reader = GetReader(fileName);
 
   if (!p_reader)
@@ -21,7 +21,7 @@ Layout* ReadLayoutFromFile(std::wstring fileName) {
   return p_layout;
 }
 
-void ReadLayoutFromFile(std::wstring fileName, Layout* layout) {
+void ReadLayoutFromFile(const STR_CLASS &fileName, Layout *layout) {
   LayoutReader* p_reader = GetReader(fileName);
 
   if (!p_reader)

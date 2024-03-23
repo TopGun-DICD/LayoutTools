@@ -15,7 +15,7 @@ LayoutReader_CIF::LayoutReader_CIF() : p_activeLibrary(nullptr), p_activeElement
 bool LayoutReader_CIF::IsMyFormat(const STR_CLASS &fName) {
   fileName = fName;
 
-  if (fName.substr(fName.find_last_of(L".") + 1) == L"cif")
+  if (fName.substr(fName.find_last_of(STR_VALUE(".")) + 1) == STR_VALUE("cif"))
     return true;
 
 

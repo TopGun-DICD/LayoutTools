@@ -15,9 +15,8 @@ LayoutReader_MAG::LayoutReader_MAG() : p_activeLibrary(nullptr), p_activeElement
 bool LayoutReader_MAG::IsMyFormat(const STR_CLASS &fName) {
   fileName = fName;
 
-  if (fName.substr(fName.find_last_of(L".") + 1) == L"cif")
+  if (fName.substr(fName.find_last_of(STR_VALUE(".")) + 1) == STR_VALUE("mag"))
     return true;
-
 
   return false;
 }

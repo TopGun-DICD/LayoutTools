@@ -2,13 +2,15 @@
  * LayoutReader_MSK.cpp
  *
  * uWind (MicroWind) MSK file format reader by Mikhail S. Kotlyarov
+ * 02.10.2021
  * updated 08.11.2022
  */
+
 #include "LayoutReader_MSK.hpp"
 #define _CRT_SECURE_NO_WARNINGS
 
 #include <unordered_map>
-#include <codecvt>
+#include <cstring>
 
 static std::unordered_map <std::string, int16_t> g_layerMap = {
   {"TITLE",-6},
@@ -29,39 +31,30 @@ static std::unordered_map <std::string, int16_t> g_layerMap = {
 
 constexpr int16_t g_undefinedValue = std::numeric_limits<int16_t>::min();
 
-// URL: https://microeducate.tech/convert-wstring-to-string-encoded-in-utf-8/
-std::string wstring_to_utf8(const std::wstring& str) {
-  std::wstring_convert<std::codecvt_utf8<wchar_t>> myconv;
-  return myconv.to_bytes(str);
-}
+bool LayoutReader_MSK::IsMyFormat(const STR_CLASS &fName) {
+  fileName = fName;
 
+  if (fName.substr(fName.find_last_of(STR_VALUE(".")) + 1) != STR_VALUE("msk"))
+    return false;
 
-bool LayoutReader_MSK::IsMyFormat(const STR_CLASS &Fname) 
-{
-  bool retVal = true;
-  do
-  {
-    size_t commaPos = Fname.find_last_of(L".");
-    if (commaPos == std::string::npos) { retVal = false; break; }
+  file.open(fileName);
+  if (!file.is_open())
+    return false;
 
-    const std::wstring fileExt = Fname.substr(commaPos + 1, Fname.length() - commaPos);
+  std::string line;
+  std::getline(file, line);
+  if (line.length() < 7) { 
+    file.close();
+    return false;
+  }
 
-    if (fileExt != L"MSK" && fileExt != L"msk") { retVal = false; break; }
+  if (line.substr(0, 7) != "VERSION") {
+    file.close();
+    return false;
+  }
 
-    file.open(wstring_to_utf8(Fname), std::ios::in);
-    if (!file) { retVal = false; break; }
-    fileName = Fname;
-
-    std::string line;
-    std::getline(file, line);
-    if (line.length() < 7) { retVal = false; break; }
-
-    if (line.substr(0, 7) != "VERSION") { retVal = false; break; }
-  } while (false);
-
-  if (file) { file.close(); }
-
-  return retVal;
+  file.close();
+  return true;
 }
 
 
@@ -87,32 +80,12 @@ std::vector<Layer>::iterator LayoutReader_MSK::FindByLayerNum(std::vector <Layer
   return Layers.end();
 }
 
-
-// URL: https://microeducate.tech/convert-wstring-to-string-encoded-in-utf-8/
-std::string WcsStrToUtf8(const std::wstring &str)
-{
-  std::wstring_convert<std::codecvt_utf8<wchar_t>> myconv;
-  return myconv.to_bytes(str);
-}
-
-
-
-std::string LayoutReader_MSK::GetElemName()//elementName == fileName
-{
-  const std::wstring &tempWcs = fileName;
-  const size_t lastCommaPos = tempWcs.find_last_of(L".");
-  const size_t firstCommaPos = tempWcs.find_last_of(L"/");
-  if (firstCommaPos == std::string::npos) { return WcsStrToUtf8(tempWcs.substr(0, lastCommaPos)); }
-  else { return WcsStrToUtf8(tempWcs.substr(firstCommaPos + 1, lastCommaPos - firstCommaPos - 1)); }
-}
-
-
 bool LayoutReader_MSK::Read(Layout *layout) 
 {
   try {
     if (!layout) throw std::invalid_argument("Layout");
 
-    file.open(wstring_to_utf8(fileName));
+    file.open(std::string(fileName.begin(), fileName.end()));
     if (!file.is_open()) throw std::runtime_error("File was not opened");
     p_layout = layout;
 
@@ -120,8 +93,8 @@ bool LayoutReader_MSK::Read(Layout *layout)
     p_activeElement = new Element;
 
     p_layout->fileName = this->fileName;
-    p_activeElement->name = GetElemName();
-    p_activeLibrary->name = WcsStrToUtf8(fileName);
+    p_activeElement->name = CONVERT_TO_STD_STRING(p_layout->fileName);
+    p_activeLibrary->name = CONVERT_TO_STD_STRING(p_layout->fileName);
 
     //Переменная для хранения одной строки из файла
     std::string fileLine;
@@ -137,21 +110,21 @@ bool LayoutReader_MSK::Read(Layout *layout)
     layout->fileName = fileName;
     layout->fileFormat = FileFormat::MSK;
 
-    layout->libraries[0]->elements[0]->min = layout->libraries[0]->elements[0]->geometries[0]->min;
-    layout->libraries[0]->elements[0]->max = layout->libraries[0]->elements[0]->geometries[0]->max;
+    layout->libraries[0]->elements[0]->minCoord = layout->libraries[0]->elements[0]->geometries[0]->minCoord;
+    layout->libraries[0]->elements[0]->maxCoord = layout->libraries[0]->elements[0]->geometries[0]->maxCoord;
 
     for (size_t i = 1; i < layout->libraries[0]->elements[0]->geometries.size(); ++i) {
-      if (layout->libraries[0]->elements[0]->min.x > layout->libraries[0]->elements[0]->geometries[i]->min.x)
-        layout->libraries[0]->elements[0]->min.x = layout->libraries[0]->elements[0]->geometries[i]->min.x;
-      if (layout->libraries[0]->elements[0]->min.y > layout->libraries[0]->elements[0]->geometries[i]->min.y)
-        layout->libraries[0]->elements[0]->min.y = layout->libraries[0]->elements[0]->geometries[i]->min.y;
-      if (layout->libraries[0]->elements[0]->max.x < layout->libraries[0]->elements[0]->geometries[i]->max.x)
-        layout->libraries[0]->elements[0]->max.x = layout->libraries[0]->elements[0]->geometries[i]->max.x;
-      if (layout->libraries[0]->elements[0]->max.y < layout->libraries[0]->elements[0]->geometries[i]->max.y)
-        layout->libraries[0]->elements[0]->max.y = layout->libraries[0]->elements[0]->geometries[i]->max.y;
+      if (layout->libraries[0]->elements[0]->minCoord.x > layout->libraries[0]->elements[0]->geometries[i]->minCoord.x)
+        layout->libraries[0]->elements[0]->minCoord.x = layout->libraries[0]->elements[0]->geometries[i]->minCoord.x;
+      if (layout->libraries[0]->elements[0]->minCoord.y > layout->libraries[0]->elements[0]->geometries[i]->minCoord.y)
+        layout->libraries[0]->elements[0]->minCoord.y = layout->libraries[0]->elements[0]->geometries[i]->minCoord.y;
+      if (layout->libraries[0]->elements[0]->maxCoord.x < layout->libraries[0]->elements[0]->geometries[i]->maxCoord.x)
+        layout->libraries[0]->elements[0]->maxCoord.x = layout->libraries[0]->elements[0]->geometries[i]->maxCoord.x;
+      if (layout->libraries[0]->elements[0]->maxCoord.y < layout->libraries[0]->elements[0]->geometries[i]->maxCoord.y)
+        layout->libraries[0]->elements[0]->maxCoord.y = layout->libraries[0]->elements[0]->geometries[i]->maxCoord.y;
     }
   }
-  catch (const std::exception &/*ex*/)
+  catch (const std::exception &ex)
   {
 
     if (file.is_open()) { file.close(); }
@@ -234,16 +207,16 @@ LayoutReader_MSK::FillBox(
 
   Box2Fill->layer = LayerNum;
 
-  Box2Fill->min = Box2Fill->max = Box2Fill->coords[0];
+  Box2Fill->minCoord = Box2Fill->maxCoord = Box2Fill->coords[0];
   for (size_t i = 1; i < Box2Fill->coords.size(); ++i) {
-    if (Box2Fill->min.x > Box2Fill->coords[i].x)
-      Box2Fill->min.x = Box2Fill->coords[i].x;
-    if (Box2Fill->min.y > Box2Fill->coords[i].y)
-      Box2Fill->min.y = Box2Fill->coords[i].y;
-    if (Box2Fill->max.x < Box2Fill->coords[i].x)
-      Box2Fill->max.x = Box2Fill->coords[i].x;
-    if (Box2Fill->max.y < Box2Fill->coords[i].y)
-      Box2Fill->max.y = Box2Fill->coords[i].y;
+    if (Box2Fill->minCoord.x > Box2Fill->coords[i].x)
+      Box2Fill->minCoord.x = Box2Fill->coords[i].x;
+    if (Box2Fill->minCoord.y > Box2Fill->coords[i].y)
+      Box2Fill->minCoord.y = Box2Fill->coords[i].y;
+    if (Box2Fill->maxCoord.x < Box2Fill->coords[i].x)
+      Box2Fill->maxCoord.x = Box2Fill->coords[i].x;
+    if (Box2Fill->maxCoord.y < Box2Fill->coords[i].y)
+      Box2Fill->maxCoord.y = Box2Fill->coords[i].y;
   }
 }
 
@@ -269,6 +242,7 @@ LayoutReader_MSK::ReadSectionRectangle(
     {
       Layer tmpLayer;
       tmpLayer.layer = currBox->layer;
+      tmpLayer.dataType = 0;
       tmpLayer.name = layerName;
       tmpLayer.geometries.push_back(currBox);
       p_activeLibrary->layers.push_back(tmpLayer);
@@ -280,7 +254,7 @@ LayoutReader_MSK::ReadSectionRectangle(
 
     p_activeElement->geometries.push_back(currBox);
   }
-  catch (const std::exception &/*ex*/)
+  catch (const std::exception &ex)
   {
     if (currBox)
     {
@@ -303,6 +277,7 @@ LayoutReader_MSK::ReadBoundingBox(
     Layer boundingBoxLayer;
     int16_t layerNum = g_layerMap.find("BB")->second;
     boundingBoxLayer.layer = layerNum;
+    boundingBoxLayer.dataType = 0;
     boundingBoxLayer.name = "BB";
 
     FillBox(boundingBox, leftBot, rightTop, layerNum);
@@ -311,7 +286,7 @@ LayoutReader_MSK::ReadBoundingBox(
     p_activeLibrary->layers.push_back(boundingBoxLayer);
     p_activeElement->geometries.push_back(boundingBox);
   }
-  catch (std::exception &/*ex*/)
+  catch (std::exception &ex)
   {
     if (boundingBox)
     {
@@ -337,11 +312,11 @@ LayoutReader_MSK::ReadTitle(
 
     p_text->coords.push_back(leftBot);
     p_text->layer = g_layerMap.find("TITLE")->second;
-    p_text->min = p_text->max = leftBot;
+    p_text->minCoord = p_text->maxCoord = leftBot;
     p_text->width = static_cast<int32_t>(strlen(buf));
     p_text->stringValue = buf;
   }
-  catch (std::exception &/*ex*/)
+  catch (std::exception &ex)
   {
     if (text)
     {

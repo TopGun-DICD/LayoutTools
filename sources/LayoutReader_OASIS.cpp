@@ -11,11 +11,11 @@ LayoutReader_OASIS::LayoutReader_OASIS() : p_activeLibrary(nullptr), p_activeEle
 bool LayoutReader_OASIS::IsMyFormat(const STR_CLASS &fName) {
   fileName = fName;
 
-  if (fName.substr(fName.find_last_of(L".") + 1) == L"oa" || fName.substr(fName.find_last_of(L".") + 1) == L"oas")
-    return true;
+  if (fName.substr(fName.find_last_of(STR_VALUE(".")) + 1) != STR_VALUE("oa"))
+    if (fName.substr(fName.find_last_of(STR_VALUE(".")) + 1) != STR_VALUE("oas"))
+      return false;
 
-
-  return false;
+  return true;
 }
 
 bool LayoutReader_OASIS::Read(Layout *layout) {

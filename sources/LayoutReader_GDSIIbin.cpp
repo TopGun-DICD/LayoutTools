@@ -19,6 +19,7 @@
 // [3] https://github.com/icdop/gds2gdt/blob/main/libsrc/libgds/gdsdata.h
 // [4] https://www.artwork.com/gdsii/gdsii/index.htm
 // [5] https://github.com/KLayout/klayout/tree/master/src/plugins/streamers/gds2/db_plugin
+// [6] https://github.com/KLayout/klayout/tree/master/src/plugins/streamers/gds2/db_plugin
 
 #include "LinuxCompat.hpp"
 
@@ -30,14 +31,10 @@ LayoutReader_GDSIIbin::LayoutReader_GDSIIbin() : p_activeLibrary(nullptr), p_act
 bool LayoutReader_GDSIIbin::IsMyFormat(const STR_CLASS &fName) {
   fileName = fName;
 
-#ifdef _MSC_VER
-  if (fileName.substr(fileName.find_last_of(L".") + 1) != L"gds")
-    if (fileName.substr(fileName.find_last_of(L".") + 1) != L"gdsii")
-#else
-  if (fileName.substr(fileName.find_last_of(".") + 1) != "gds")
-    if (fileName.substr(fileName.find_last_of(".") + 1) != "gdsii")
-#endif
-      return false;
+  if (fName.substr(fName.find_last_of(STR_VALUE(".")) + 1) != STR_VALUE("gds"))
+    if (fName.substr(fName.find_last_of(STR_VALUE(".")) + 1) != STR_VALUE("gds2"))
+      if (fName.substr(fName.find_last_of(STR_VALUE(".")) + 1) != STR_VALUE("gdsii"))
+        return false;
 
   file.open(fileName, std::ios::in | std::ios::binary);
   if (!file.is_open())
@@ -308,18 +305,18 @@ void LayoutReader_GDSIIbin::ReadSection_ENDSTRUCTURE(GDSIIRecord &_record) {
   }
 
   if (!p_activeElement->geometries.empty()) {
-    p_activeElement->min = p_activeElement->geometries[0]->min;
-    p_activeElement->max = p_activeElement->geometries[0]->max;
+    p_activeElement->minCoord = p_activeElement->geometries[0]->minCoord;
+    p_activeElement->maxCoord = p_activeElement->geometries[0]->maxCoord;
 
     for (size_t i = 1; i < p_activeElement->geometries.size(); ++i) {
-      if (p_activeElement->min.x > p_activeElement->geometries[i]->min.x)
-        p_activeElement->min.x = p_activeElement->geometries[i]->min.x;
-      if (p_activeElement->min.y > p_activeElement->geometries[i]->min.y)
-        p_activeElement->min.y = p_activeElement->geometries[i]->min.y;
-      if (p_activeElement->max.x < p_activeElement->geometries[i]->max.x)
-        p_activeElement->max.x = p_activeElement->geometries[i]->max.x;
-      if (p_activeElement->max.y < p_activeElement->geometries[i]->max.y)
-        p_activeElement->max.y = p_activeElement->geometries[i]->max.y;
+      if (p_activeElement->minCoord.x > p_activeElement->geometries[i]->minCoord.x)
+        p_activeElement->minCoord.x = p_activeElement->geometries[i]->minCoord.x;
+      if (p_activeElement->minCoord.y > p_activeElement->geometries[i]->minCoord.y)
+        p_activeElement->minCoord.y = p_activeElement->geometries[i]->minCoord.y;
+      if (p_activeElement->maxCoord.x < p_activeElement->geometries[i]->maxCoord.x)
+        p_activeElement->maxCoord.x = p_activeElement->geometries[i]->maxCoord.x;
+      if (p_activeElement->maxCoord.y < p_activeElement->geometries[i]->maxCoord.y)
+        p_activeElement->maxCoord.y = p_activeElement->geometries[i]->maxCoord.y;
     }
   }
   p_activeLibrary->elements.push_back(p_activeElement);
@@ -568,16 +565,16 @@ void LayoutReader_GDSIIbin::ReadSection_XY(GDSIIRecord &_record) {
   if (p_activeGeometry->coords.empty())
     return;
 
-  p_activeGeometry->min = p_activeGeometry->max = p_activeGeometry->coords[0];
+  p_activeGeometry->minCoord = p_activeGeometry->maxCoord = p_activeGeometry->coords[0];
   for (size_t i = 1; i < p_activeGeometry->coords.size(); ++i) {
-    if (p_activeGeometry->min.x > p_activeGeometry->coords[i].x)
-      p_activeGeometry->min.x = p_activeGeometry->coords[i].x;
-    if (p_activeGeometry->min.y > p_activeGeometry->coords[i].y)
-      p_activeGeometry->min.y = p_activeGeometry->coords[i].y;
-    if (p_activeGeometry->max.x < p_activeGeometry->coords[i].x)
-      p_activeGeometry->max.x = p_activeGeometry->coords[i].x;
-    if (p_activeGeometry->max.y < p_activeGeometry->coords[i].y)
-      p_activeGeometry->max.y = p_activeGeometry->coords[i].y;
+    if (p_activeGeometry->minCoord.x > p_activeGeometry->coords[i].x)
+      p_activeGeometry->minCoord.x = p_activeGeometry->coords[i].x;
+    if (p_activeGeometry->minCoord.y > p_activeGeometry->coords[i].y)
+      p_activeGeometry->minCoord.y = p_activeGeometry->coords[i].y;
+    if (p_activeGeometry->maxCoord.x < p_activeGeometry->coords[i].x)
+      p_activeGeometry->maxCoord.x = p_activeGeometry->coords[i].x;
+    if (p_activeGeometry->maxCoord.y < p_activeGeometry->coords[i].y)
+      p_activeGeometry->maxCoord.y = p_activeGeometry->coords[i].y;
   }
 }
 
@@ -1028,17 +1025,17 @@ void LayoutReader_GDSIIbin::EvaluateBoundingBox() {
       if (p_lib->elements[j]->nested)
         continue;
 
-      p_lib->min = p_lib->elements[j]->min;
-      p_lib->max = p_lib->elements[j]->max;
+      p_lib->minCoord = p_lib->elements[j]->minCoord;
+      p_lib->maxCoord = p_lib->elements[j]->maxCoord;
 
-      if (p_lib->min.x > p_lib->elements[j]->min.x)
-        p_lib->min.x = p_lib->elements[j]->min.x;
-      if (p_lib->min.y > p_lib->elements[j]->min.y)
-        p_lib->min.y = p_lib->elements[j]->min.y;
-      if (p_lib->max.x > p_lib->elements[j]->max.x)
-        p_lib->max.x = p_lib->elements[j]->max.x;
-      if (p_lib->max.y > p_lib->elements[j]->max.y)
-        p_lib->max.y = p_lib->elements[j]->max.y;
+      if (p_lib->minCoord.x > p_lib->elements[j]->minCoord.x)
+        p_lib->minCoord.x = p_lib->elements[j]->minCoord.x;
+      if (p_lib->minCoord.y > p_lib->elements[j]->minCoord.y)
+        p_lib->minCoord.y = p_lib->elements[j]->minCoord.y;
+      if (p_lib->maxCoord.x > p_lib->elements[j]->maxCoord.x)
+        p_lib->maxCoord.x = p_lib->elements[j]->maxCoord.x;
+      if (p_lib->maxCoord.y > p_lib->elements[j]->maxCoord.y)
+        p_lib->maxCoord.y = p_lib->elements[j]->maxCoord.y;
     }
   }
 }

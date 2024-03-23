@@ -10,6 +10,6 @@ class LayoutReader_DXF : public LayoutReader {
 public:
   LayoutReader_DXF();
 public:
-  bool IsMyFormat(const std::wstring &fName) final;
+  bool IsMyFormat(const STR_CLASS &fName) final;
   bool Read(Layout *layout) final;
 };

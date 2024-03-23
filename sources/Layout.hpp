@@ -32,12 +32,12 @@ enum class GeometryType {
 struct Geometry {
   GeometryType          type;
   int16_t               layer;
-  Coord                 min,
-                        max;
+  Coord                 minCoord,
+                        maxCoord;
   std::vector<Property> properties;
   std::vector<Coord>    coords;
 public:
-  Geometry(GeometryType t) : type(t), layer(-1), min({ INT32_MAX, INT32_MAX }), max({ INT32_MIN, INT32_MIN }) {}
+  Geometry(GeometryType t) : type(t), layer(-1), minCoord({ INT32_MAX, INT32_MAX }), maxCoord({ INT32_MIN, INT32_MIN }) {}
 };
 
 struct Polygon : public Geometry {
@@ -85,13 +85,13 @@ public:
 
 struct Element {
   bool                    isFlat;
-  Coord                   min,
-                          max;
+  Coord                   minCoord,
+                          maxCoord;
   bool                    nested;
   std::string             name;
   std::vector<Geometry *> geometries;
 public:
-  Element() : isFlat(true), min({ INT32_MAX, INT32_MAX }), max({ INT32_MIN, INT32_MIN }), nested(false) {}
+  Element() : isFlat(true), minCoord({ INT32_MAX, INT32_MAX }), maxCoord({ INT32_MIN, INT32_MIN }), nested(false) {}
   ~Element() {
     for (size_t i = 0; i < geometries.size(); ++i) {
       delete geometries[i];
@@ -110,13 +110,13 @@ struct Layer {
 
 struct Library {
   Units                   units;
-  Coord                   min,
-                          max;
+  Coord                   minCoord,
+                          maxCoord;
   std::string             name;
   std::vector<Element *>  elements;
   std::vector<Layer>      layers;
 public:
-  Library() : units({ 0.001 , 1e-9}), min({ INT32_MAX, INT32_MAX }), max({ INT32_MIN, INT32_MIN }) {
+  Library() : units({ 0.001 , 1e-9}), minCoord({ INT32_MAX, INT32_MAX }), maxCoord({ INT32_MIN, INT32_MIN }) {
   }
  ~Library() {
     for (size_t i = 0; i < elements.size(); ++i) {
@@ -147,6 +147,10 @@ struct Layout {
   std::vector<Library *>  libraries;
 public:
   ~Layout() {
+    Clear();
+  }
+public:
+  void Clear() {
     for (size_t i = 0; i < libraries.size(); ++i) {
       delete libraries[i];
       libraries[i] = nullptr;

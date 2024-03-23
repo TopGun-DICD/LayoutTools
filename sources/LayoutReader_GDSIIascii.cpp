@@ -17,10 +17,10 @@ LayoutReader_GDSIIascii::LayoutReader_GDSIIascii() : p_activeLibrary(nullptr), p
 bool LayoutReader_GDSIIascii::IsMyFormat(const STR_CLASS &fName) {
   fileName = fName;
 
-  if (fName.substr(fName.find_last_of(L".") + 1) != L"gds")
-      if (fName.substr(fName.find_last_of(L".") + 1) == L"gdt")
-          if (fName.substr(fName.find_last_of(L".") + 1) == L"txt")
-              return false;
+  if (fName.substr(fName.find_last_of(STR_VALUE(".")) + 1) != STR_VALUE("gds"))
+    if (fName.substr(fName.find_last_of(STR_VALUE(".")) + 1) != STR_VALUE("gdt"))
+      if (fName.substr(fName.find_last_of(STR_VALUE(".")) + 1) != STR_VALUE("txt"))
+        return false;
 
   file.open(fileName);
   if (!file.is_open())
@@ -322,18 +322,18 @@ void LayoutReader_GDSIIascii::ReadSection_ENDSTRUCTURE() {
     }
 
     if (!p_activeElement->geometries.empty()) {
-        p_activeElement->min = p_activeElement->geometries[0]->min;
-        p_activeElement->max = p_activeElement->geometries[0]->max;
+        p_activeElement->minCoord = p_activeElement->geometries[0]->minCoord;
+        p_activeElement->maxCoord = p_activeElement->geometries[0]->maxCoord;
 
         for (const auto& i : p_activeElement->geometries) {
-            if (p_activeElement->min.x > i->min.x)
-                p_activeElement->min.x = i->min.x;
-            if (p_activeElement->min.y > i->min.y)
-                p_activeElement->min.y = i->min.y;
-            if (p_activeElement->max.x < i->max.x)
-                p_activeElement->max.x = i->max.x;
-            if (p_activeElement->max.y < i->max.y)
-                p_activeElement->max.y = i->max.y;
+            if (p_activeElement->minCoord.x > i->minCoord.x)
+                p_activeElement->minCoord.x = i->minCoord.x;
+            if (p_activeElement->minCoord.y > i->minCoord.y)
+                p_activeElement->minCoord.y = i->minCoord.y;
+            if (p_activeElement->maxCoord.x < i->maxCoord.x)
+                p_activeElement->maxCoord.x = i->maxCoord.x;
+            if (p_activeElement->maxCoord.y < i->maxCoord.y)
+                p_activeElement->maxCoord.y = i->maxCoord.y;
         }
     }
 
@@ -584,16 +584,16 @@ void LayoutReader_GDSIIascii::ReadSection_XY() {
     if (p_activeGeometry->coords.empty())
         return;
 
-    p_activeGeometry->min = p_activeGeometry->max = p_activeGeometry->coords[0];
+    p_activeGeometry->minCoord = p_activeGeometry->maxCoord = p_activeGeometry->coords[0];
     for (const auto& i : p_activeGeometry->coords) {
-        if (p_activeGeometry->min.x > i.x)
-            p_activeGeometry->min.x = i.x;
-        if (p_activeGeometry->min.y > i.y)
-            p_activeGeometry->min.y = i.y;
-        if (p_activeGeometry->max.x < i.x)
-            p_activeGeometry->max.x = i.x;
-        if (p_activeGeometry->max.y < i.y)
-            p_activeGeometry->max.y = i.y;
+        if (p_activeGeometry->minCoord.x > i.x)
+            p_activeGeometry->minCoord.x = i.x;
+        if (p_activeGeometry->minCoord.y > i.y)
+            p_activeGeometry->minCoord.y = i.y;
+        if (p_activeGeometry->maxCoord.x < i.x)
+            p_activeGeometry->maxCoord.x = i.x;
+        if (p_activeGeometry->maxCoord.y < i.y)
+            p_activeGeometry->maxCoord.y = i.y;
     }
 }
 
@@ -975,17 +975,17 @@ void LayoutReader_GDSIIascii::EvaluateBoundingBox() {
             if (lib->elements[j]->nested)
                 continue;
 
-            lib->min = lib->elements[j]->min;
-            lib->max = lib->elements[j]->max;
+            lib->minCoord = lib->elements[j]->minCoord;
+            lib->maxCoord = lib->elements[j]->maxCoord;
 
-            if (lib->min.x > lib->elements[j]->min.x)
-                lib->min.x = lib->elements[j]->min.x;
-            if (lib->min.y > lib->elements[j]->min.y)
-                lib->min.y = lib->elements[j]->min.y;
-            if (lib->max.x > lib->elements[j]->max.x)
-                lib->max.x = lib->elements[j]->max.x;
-            if (lib->max.y > lib->elements[j]->max.y)
-                lib->max.y = lib->elements[j]->max.y;
+            if (lib->minCoord.x > lib->elements[j]->minCoord.x)
+                lib->minCoord.x = lib->elements[j]->minCoord.x;
+            if (lib->minCoord.y > lib->elements[j]->minCoord.y)
+                lib->minCoord.y = lib->elements[j]->minCoord.y;
+            if (lib->maxCoord.x > lib->elements[j]->maxCoord.x)
+                lib->maxCoord.x = lib->elements[j]->maxCoord.x;
+            if (lib->maxCoord.y > lib->elements[j]->maxCoord.y)
+                lib->maxCoord.y = lib->elements[j]->maxCoord.y;
         }
     }
 }

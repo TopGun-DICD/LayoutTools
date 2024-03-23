@@ -2,6 +2,6 @@
 
 #include "Layout.hpp"
 
-Layout *ReadLayoutFromFile(std::wstring filename);
-void ReadLayoutFromFile(std::wstring filename, Layout *layout);
+Layout *ReadLayoutFromFile(const STR_CLASS &filename);
+void ReadLayoutFromFile(const STR_CLASS &filename, Layout *layout);
 bool CopyLayout(const Layout *src, Layout *dst);
