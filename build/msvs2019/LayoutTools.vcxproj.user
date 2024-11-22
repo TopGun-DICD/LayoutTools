@@ -3,6 +3,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LocalDebuggerWorkingDirectory>..\..\bin</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>tests/inv.gds</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>tests/inv.gds.txt</LocalDebuggerCommandArguments>
   </PropertyGroup>
 </Project>

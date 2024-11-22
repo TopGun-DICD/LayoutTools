@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 
+#include "GDSIITypes.hpp"
+
 // Used in GDSII
 struct Units {
   double  user,
@@ -90,9 +92,11 @@ struct Element {
   bool                    nested;
   std::string             name;
   std::vector<Geometry *> geometries;
+  DateTime                lastTimeModified,
+                          lastTimeAccessed;
 public:
   Element() : isFlat(true), minCoord({ INT32_MAX, INT32_MAX }), maxCoord({ INT32_MIN, INT32_MIN }), nested(false) {}
-  ~Element() {
+ ~Element() {
     for (size_t i = 0; i < geometries.size(); ++i) {
       delete geometries[i];
       geometries[i] = nullptr;
@@ -115,6 +119,8 @@ struct Library {
   std::string             name;
   std::vector<Element *>  elements;
   std::vector<Layer>      layers;
+  DateTime                lastTimeModified,
+                          lastTimeAccessed;
 public:
   Library() : units({ 0.001 , 1e-9}), minCoord({ INT32_MAX, INT32_MAX }), maxCoord({ INT32_MIN, INT32_MIN }) {
   }

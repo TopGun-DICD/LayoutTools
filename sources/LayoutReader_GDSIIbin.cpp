@@ -25,7 +25,7 @@
 
 #include <string.h>
 
-LayoutReader_GDSIIbin::LayoutReader_GDSIIbin() : p_activeLibrary(nullptr), p_activeElement(nullptr), p_activeGeometry(nullptr) {
+LayoutReader_GDSIIbin::LayoutReader_GDSIIbin() : activeLibrary(nullptr), activeElement(nullptr), activeGeometry(nullptr) {
 }
 
 bool LayoutReader_GDSIIbin::IsMyFormat(const STR_CLASS &fName) {
@@ -158,42 +158,41 @@ void LayoutReader_GDSIIbin::ReadSection_HEADER(GDSIIRecord &_record) {
 
 
 void LayoutReader_GDSIIbin::ReadSection_BEGINLIBRARY(GDSIIRecord &_record) {
-  if (p_activeLibrary) {
+  if (activeLibrary) {
     //TODO: push error, library already started
     return;
   }
-  p_activeLibrary = new Library;
-  p_layout->libraries.push_back(p_activeLibrary);
+  activeLibrary = new Library;
+  p_layout->libraries.push_back(activeLibrary);
 
-  DateTime lastTimeModified, lastTimeAccessed;
-  file.read(reinterpret_cast<char *>(&lastTimeModified), sizeof(DateTime));
-  file.read(reinterpret_cast<char *>(&lastTimeAccessed), sizeof(DateTime));
+  file.read(reinterpret_cast<char *>(&activeLibrary->lastTimeModified), sizeof(DateTime));
+  file.read(reinterpret_cast<char *>(&activeLibrary->lastTimeAccessed), sizeof(DateTime));
 
-  Normalize_WORD(lastTimeModified.year);
-  Normalize_WORD(lastTimeModified.month);
-  Normalize_WORD(lastTimeModified.day);
-  Normalize_WORD(lastTimeModified.hour);
-  Normalize_WORD(lastTimeModified.minute);
-  Normalize_WORD(lastTimeModified.second);
+  Normalize_WORD(activeLibrary->lastTimeModified.year);
+  Normalize_WORD(activeLibrary->lastTimeModified.month);
+  Normalize_WORD(activeLibrary->lastTimeModified.day);
+  Normalize_WORD(activeLibrary->lastTimeModified.hour);
+  Normalize_WORD(activeLibrary->lastTimeModified.minute);
+  Normalize_WORD(activeLibrary->lastTimeModified.second);
 
-  Normalize_WORD(lastTimeAccessed.year);
-  Normalize_WORD(lastTimeAccessed.month);
-  Normalize_WORD(lastTimeAccessed.day);
-  Normalize_WORD(lastTimeAccessed.hour);
-  Normalize_WORD(lastTimeAccessed.minute);
-  Normalize_WORD(lastTimeAccessed.second);
+  Normalize_WORD(activeLibrary->lastTimeAccessed.year);
+  Normalize_WORD(activeLibrary->lastTimeAccessed.month);
+  Normalize_WORD(activeLibrary->lastTimeAccessed.day);
+  Normalize_WORD(activeLibrary->lastTimeAccessed.hour);
+  Normalize_WORD(activeLibrary->lastTimeAccessed.minute);
+  Normalize_WORD(activeLibrary->lastTimeAccessed.second);
 }
 
 void LayoutReader_GDSIIbin::ReadSection_LIBNAME(GDSIIRecord &_record) {
-  if (!p_activeLibrary) {
+  if (!activeLibrary) {
     ////MessageManager::Get()->PushError("Format error. Found LIBNAME section outside of library.");
     return;
   }
-  if (p_activeElement) {
+  if (activeElement) {
     ////MessageManager::Get()->PushError("Format error. Found LIBNAME section inside of structure.");
     return;
   }
-  if (p_activeGeometry) {
+  if (activeGeometry) {
     ////MessageManager::Get()->PushError("Format error. Found LIBNAME section inside of element.");
     return;
   }
@@ -201,83 +200,82 @@ void LayoutReader_GDSIIbin::ReadSection_LIBNAME(GDSIIRecord &_record) {
   char *str = new char[_record.length + 1];
   memset(str, 0, _record.length + 1);
   file.read(str, _record.length);
-  p_activeLibrary->name = str;
+  activeLibrary->name = str;
   delete[] str;
   str = nullptr;
 }
 
 void LayoutReader_GDSIIbin::ReadSection_UNITS(GDSIIRecord &_record) {
-  if (!p_activeLibrary) {
+  if (!activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found UNITS section outside of library.");
     return;
   }
-  if (p_activeElement) {
+  if (activeElement) {
     //MessageManager::Get()->PushError("Format error. Found UNITS section inside of structure.");
     return;
   }
-  if (p_activeGeometry) {
+  if (activeGeometry) {
     //MessageManager::Get()->PushError("Format error. Found UNITS section inside of element.");
     return;
   }
 
-  file.read(reinterpret_cast<char *>(&p_activeLibrary->units), sizeof(Units));
+  file.read(reinterpret_cast<char *>(&activeLibrary->units), sizeof(Units));
 
-  Normalize_DOUBLE(p_activeLibrary->units.user);
-  Normalize_DOUBLE(p_activeLibrary->units.physical);
+  Normalize_DOUBLE(activeLibrary->units.user);
+  Normalize_DOUBLE(activeLibrary->units.physical);
 }
 
 void LayoutReader_GDSIIbin::ReadSection_ENDLIBRARY(GDSIIRecord &_record) {
   //file.seekg(_record.length, std::ios_base::cur);
   // Nothing to do
 
-  p_activeLibrary = nullptr;
+  activeLibrary = nullptr;
 }
 
 void LayoutReader_GDSIIbin::ReadSection_BEGINSTRUCTURE(GDSIIRecord &_record) {
-  if (!p_activeLibrary) {
+  if (!activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found BGNSTR section outside of library.");
     return;
   }
-  if (p_activeElement) {
+  if (activeElement) {
     //MessageManager::Get()->PushError("Format error. Found BGNSTR section inside of structure.");
     return;
   }
-  if (p_activeGeometry) {
+  if (activeGeometry) {
     //MessageManager::Get()->PushError("Format error. Found BGNSTR section inside of element.");
     return;
   }
 
-  p_activeElement = new Element;
+  activeElement = new Element;
 
-  DateTime lastTimeModified, lastTimeAccessed;
-  file.read(reinterpret_cast<char *>(&lastTimeModified), sizeof(DateTime));
-  file.read(reinterpret_cast<char *>(&lastTimeAccessed), sizeof(DateTime));
+  file.read(reinterpret_cast<char *>(&activeElement->lastTimeModified), sizeof(DateTime));
+  file.read(reinterpret_cast<char *>(&activeElement->lastTimeAccessed), sizeof(DateTime));
 
-  Normalize_WORD(lastTimeModified.year);
-  Normalize_WORD(lastTimeModified.month);
-  Normalize_WORD(lastTimeModified.day);
-  Normalize_WORD(lastTimeModified.hour);
-  Normalize_WORD(lastTimeModified.minute);
-  Normalize_WORD(lastTimeModified.second);
+  Normalize_WORD(activeElement->lastTimeModified.year);
+  Normalize_WORD(activeElement->lastTimeModified.month);
+  Normalize_WORD(activeElement->lastTimeModified.day);
+  Normalize_WORD(activeElement->lastTimeModified.hour);
+  Normalize_WORD(activeElement->lastTimeModified.minute);
+  Normalize_WORD(activeElement->lastTimeModified.second);
 
-  Normalize_WORD(lastTimeAccessed.year);
-  Normalize_WORD(lastTimeAccessed.month);
-  Normalize_WORD(lastTimeAccessed.day);
-  Normalize_WORD(lastTimeAccessed.hour);
-  Normalize_WORD(lastTimeAccessed.minute);
-  Normalize_WORD(lastTimeAccessed.second);
+  Normalize_WORD(activeElement->lastTimeAccessed.year);
+  Normalize_WORD(activeElement->lastTimeAccessed.month);
+  Normalize_WORD(activeElement->lastTimeAccessed.day);
+  Normalize_WORD(activeElement->lastTimeAccessed.hour);
+  Normalize_WORD(activeElement->lastTimeAccessed.minute);
+  Normalize_WORD(activeElement->lastTimeAccessed.second);
 }
 
 void LayoutReader_GDSIIbin::ReadSection_STRNAME(GDSIIRecord &_record) {
-  if (!p_activeLibrary) {
+  if (!activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found STRNAME section outside of library.");
     return;
   }
-  if (!p_activeElement) {
+  if (!activeElement) {
     //MessageManager::Get()->PushError("Format error. Found STRNAME section outside of structure.");
     return;
   }
-  if (p_activeGeometry) {
+  if (activeGeometry) {
     //MessageManager::Get()->PushError("Format error. Found STRNME section inside of element.");
     return;
   }
@@ -285,147 +283,147 @@ void LayoutReader_GDSIIbin::ReadSection_STRNAME(GDSIIRecord &_record) {
   char *str = new char[_record.length + 1];
   memset(str, 0, _record.length + 1);
   file.read(str, _record.length);
-  p_activeElement->name = str;
+  activeElement->name = str;
   delete[] str;
   str = nullptr;
 }
 
 void LayoutReader_GDSIIbin::ReadSection_ENDSTRUCTURE(GDSIIRecord &_record) {
-  if (!p_activeLibrary) {
+  if (!activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found ENDSTR section outside of library.");
     return;
   }
-  if (!p_activeElement) {
+  if (!activeElement) {
     //MessageManager::Get()->PushError("Format error. Found ENDSTR section outside of structure.");
     return;
   }
-  if (p_activeGeometry) {
+  if (activeGeometry) {
     //MessageManager::Get()->PushError("Format error. Found ENDSTR section inside of element.");
     return;
   }
 
-  if (!p_activeElement->geometries.empty()) {
-    p_activeElement->minCoord = p_activeElement->geometries[0]->minCoord;
-    p_activeElement->maxCoord = p_activeElement->geometries[0]->maxCoord;
+  if (!activeElement->geometries.empty()) {
+    activeElement->minCoord = activeElement->geometries[0]->minCoord;
+    activeElement->maxCoord = activeElement->geometries[0]->maxCoord;
 
-    for (size_t i = 1; i < p_activeElement->geometries.size(); ++i) {
-      if (p_activeElement->minCoord.x > p_activeElement->geometries[i]->minCoord.x)
-        p_activeElement->minCoord.x = p_activeElement->geometries[i]->minCoord.x;
-      if (p_activeElement->minCoord.y > p_activeElement->geometries[i]->minCoord.y)
-        p_activeElement->minCoord.y = p_activeElement->geometries[i]->minCoord.y;
-      if (p_activeElement->maxCoord.x < p_activeElement->geometries[i]->maxCoord.x)
-        p_activeElement->maxCoord.x = p_activeElement->geometries[i]->maxCoord.x;
-      if (p_activeElement->maxCoord.y < p_activeElement->geometries[i]->maxCoord.y)
-        p_activeElement->maxCoord.y = p_activeElement->geometries[i]->maxCoord.y;
+    for (size_t i = 1; i < activeElement->geometries.size(); ++i) {
+      if (activeElement->minCoord.x > activeElement->geometries[i]->minCoord.x)
+        activeElement->minCoord.x = activeElement->geometries[i]->minCoord.x;
+      if (activeElement->minCoord.y > activeElement->geometries[i]->minCoord.y)
+        activeElement->minCoord.y = activeElement->geometries[i]->minCoord.y;
+      if (activeElement->maxCoord.x < activeElement->geometries[i]->maxCoord.x)
+        activeElement->maxCoord.x = activeElement->geometries[i]->maxCoord.x;
+      if (activeElement->maxCoord.y < activeElement->geometries[i]->maxCoord.y)
+        activeElement->maxCoord.y = activeElement->geometries[i]->maxCoord.y;
     }
   }
-  p_activeLibrary->elements.push_back(p_activeElement);
-  p_activeElement = nullptr;
+  activeLibrary->elements.push_back(activeElement);
+  activeElement = nullptr;
 }
 
 void LayoutReader_GDSIIbin::ReadSection_BOUNDARY(GDSIIRecord &_record) {
-  if (!p_activeLibrary) {
+  if (!activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found BOUNDARY section outside of library.");
     return;
   }
-  if (!p_activeElement) {
+  if (!activeElement) {
     //MessageManager::Get()->PushError("Format error. Found BOUNDARY section outside of structure.");
     return;
   }
-  if (p_activeGeometry) {
+  if (activeGeometry) {
     //MessageManager::Get()->PushError("Format error. Found BOUNDARY section inside of element.");
     return;
   }
 
-  p_activeGeometry = new Polygon;
-  p_activeElement->geometries.push_back(p_activeGeometry);
+  activeGeometry = new Polygon;
+  activeElement->geometries.push_back(activeGeometry);
 }
 
 void LayoutReader_GDSIIbin::ReadSection_PATH(GDSIIRecord &_record) {
-  if (!p_activeLibrary) {
+  if (!activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found PATH section outside of library.");
     return;
   }
-  if (!p_activeElement) {
+  if (!activeElement) {
     //MessageManager::Get()->PushError("Format error. Found PATH section outside of structure.");
     return;
   }
-  if (p_activeGeometry) {
+  if (activeGeometry) {
     //MessageManager::Get()->PushError("Format error. Found PATH section inside of element.");
     return;
   }
 
-  p_activeGeometry = new Path;
-  p_activeElement->geometries.push_back(p_activeGeometry);
+  activeGeometry = new Path;
+  activeElement->geometries.push_back(activeGeometry);
 }
 
 void LayoutReader_GDSIIbin::ReadSection_SREF(GDSIIRecord &_record) {
-  if (!p_activeLibrary) {
+  if (!activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found SREF section outside of library.");
     return;
   }
-  if (!p_activeElement) {
+  if (!activeElement) {
     //MessageManager::Get()->PushError("Format error. Found SREF section outside of structure.");
     return;
   }
-  if (p_activeGeometry) {
+  if (activeGeometry) {
     //MessageManager::Get()->PushError("Format error. Found SREF section inside of element.");
     return;
   }
 
-  p_activeGeometry = new Reference;
-  p_activeElement->geometries.push_back(p_activeGeometry);
-  p_activeElement->isFlat = false;
+  activeGeometry = new Reference;
+  activeElement->geometries.push_back(activeGeometry);
+  activeElement->isFlat = false;
 }
 
 //void ReadSection_AREF(GDSIIRecord &_record);
 
 void LayoutReader_GDSIIbin::ReadSection_TEXT(GDSIIRecord &_record) {
-  if (!p_activeLibrary) {
+  if (!activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found TEXT section outside of library.");
     return;
   }
-  if (!p_activeElement) {
+  if (!activeElement) {
     //MessageManager::Get()->PushError("Format error. Found TEXT section outside of structure.");
     return;
   }
-  if (p_activeGeometry) {
+  if (activeGeometry) {
     //MessageManager::Get()->PushError("Format error. Found TEXT section inside of element.");
     return;
   }
 
-  p_activeGeometry = new Text;
-  p_activeElement->geometries.push_back(p_activeGeometry);
+  activeGeometry = new Text;
+  activeElement->geometries.push_back(activeGeometry);
 }
 
 void LayoutReader_GDSIIbin::ReadSection_LAYER(GDSIIRecord &_record) {
-  if (!p_activeLibrary) {
+  if (!activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found LAYER section outside of library.");
     return;
   }
-  if (!p_activeElement) {
+  if (!activeElement) {
     //MessageManager::Get()->PushError("Format error. Found LAYER section outside of structure.");
     return;
   }
-  if (!p_activeGeometry) {
+  if (!activeGeometry) {
     //MessageManager::Get()->PushError("Format error. Found LAYER section outside of element.");
     return;
   }
 
-  file.read(reinterpret_cast<char *>(&p_activeGeometry->layer), sizeof(int16_t));
-  Normalize_WORD(p_activeGeometry->layer);
+  file.read(reinterpret_cast<char *>(&activeGeometry->layer), sizeof(int16_t));
+  Normalize_WORD(activeGeometry->layer);
 }
 
 void LayoutReader_GDSIIbin::ReadSection_DATATYPE(GDSIIRecord &_record) {
-  if (!p_activeLibrary) {
+  if (!activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found DATATYPE section outside of library.");
     return;
   }
-  if (!p_activeElement) {
+  if (!activeElement) {
     //MessageManager::Get()->PushError("Format error. Found DATATYPE section outside of structure.");
     return;
   }
-  if (!p_activeGeometry) {
+  if (!activeGeometry) {
     //MessageManager::Get()->PushError("Format error. Found DATATYPE section outside of element.");
     return;
   }
@@ -434,12 +432,12 @@ void LayoutReader_GDSIIbin::ReadSection_DATATYPE(GDSIIRecord &_record) {
   file.read(reinterpret_cast<char *>(&dataType), sizeof(int16_t));
   Normalize_WORD(dataType);
 
-  switch (p_activeGeometry->type) {
+  switch (activeGeometry->type) {
     case GeometryType::polygon:
-      static_cast<Polygon *>(p_activeGeometry)->dataType = dataType;
+      static_cast<Polygon *>(activeGeometry)->dataType = dataType;
       break;
     case GeometryType::path:
-      static_cast<Path *>(p_activeGeometry)->dataType = dataType;
+      static_cast<Path *>(activeGeometry)->dataType = dataType;
       break;
     default:
       ;
@@ -448,15 +446,15 @@ void LayoutReader_GDSIIbin::ReadSection_DATATYPE(GDSIIRecord &_record) {
 }
 
 void LayoutReader_GDSIIbin::ReadSection_WIDTH(GDSIIRecord &_record) {
-  if (!p_activeLibrary) {
+  if (!activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found WIDTH section outside of library.");
     return;
   }
-  if (!p_activeElement) {
+  if (!activeElement) {
     //MessageManager::Get()->PushError("Format error. Found WIDTH section outside of structure.");
     return;
   }
-  if (!p_activeGeometry) {
+  if (!activeGeometry) {
     //MessageManager::Get()->PushError("Format error. Found WIDTH section outside of element.");
     return;
   }
@@ -465,12 +463,12 @@ void LayoutReader_GDSIIbin::ReadSection_WIDTH(GDSIIRecord &_record) {
   file.read(reinterpret_cast<char *>(&width), sizeof(int32_t));
   Normalize_DWORD(width);
 
-  switch (p_activeGeometry->type) {
+  switch (activeGeometry->type) {
     case GeometryType::path:
-      static_cast<Path *>(p_activeGeometry)->width = width;
+      static_cast<Path *>(activeGeometry)->width = width;
       break;
     case GeometryType::text:
-      static_cast<Text *>(p_activeGeometry)->width = width;
+      static_cast<Text *>(activeGeometry)->width = width;
       break;
     default:
       ;
@@ -479,15 +477,15 @@ void LayoutReader_GDSIIbin::ReadSection_WIDTH(GDSIIRecord &_record) {
 }
 
 void LayoutReader_GDSIIbin::ReadSection_XY(GDSIIRecord &_record) {
-  if (!p_activeLibrary) {
+  if (!activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found XY section outside of library.");
     return;
   }
-  if (!p_activeElement) {
+  if (!activeElement) {
     //MessageManager::Get()->PushError("Format error. Found XY section outside of structure.");
     return;
   }
-  if (!p_activeGeometry) {
+  if (!activeGeometry) {
     //MessageManager::Get()->PushError("Format error. Found XY section outside of element.");
     return;
   }
@@ -502,9 +500,9 @@ void LayoutReader_GDSIIbin::ReadSection_XY(GDSIIRecord &_record) {
   Coord       coord;
   int         i = 0;
 
-  switch (p_activeGeometry->type) {
+  switch (activeGeometry->type) {
     case GeometryType::polygon:
-      p_boundary = static_cast<Polygon *>(p_activeGeometry);
+      p_boundary = static_cast<Polygon *>(activeGeometry);
       p_boundary->coords.resize(numberOfCoors);
       for (i = 0; i < numberOfCoors; ++i) {
         file.read(reinterpret_cast<char *>(&coord), sizeof(Coord));
@@ -516,7 +514,7 @@ void LayoutReader_GDSIIbin::ReadSection_XY(GDSIIRecord &_record) {
       }
       break;
     case GeometryType::path:
-      p_path = static_cast<Path *>(p_activeGeometry);
+      p_path = static_cast<Path *>(activeGeometry);
       p_path->coords.resize(numberOfCoors);
       for (i = 0; i < numberOfCoors; ++i) {
         file.read(reinterpret_cast<char *>(&coord), sizeof(Coord));
@@ -528,7 +526,7 @@ void LayoutReader_GDSIIbin::ReadSection_XY(GDSIIRecord &_record) {
       }
       break;
     case GeometryType::rectangle:
-      p_box = static_cast<Rectangle *>(p_activeGeometry);
+      p_box = static_cast<Rectangle *>(activeGeometry);
       p_box->coords.resize(numberOfCoors);
       for (i = 0; i < numberOfCoors; ++i) {
         file.read(reinterpret_cast<char *>(&coord), sizeof(Coord));
@@ -540,7 +538,7 @@ void LayoutReader_GDSIIbin::ReadSection_XY(GDSIIRecord &_record) {
       }
       break;
     case GeometryType::reference:
-      p_structRef = static_cast<Reference *>(p_activeGeometry);
+      p_structRef = static_cast<Reference *>(activeGeometry);
 
       file.read(reinterpret_cast<char *>(&coord), sizeof(Coord));
       Normalize_DWORD(coord.x);
@@ -549,7 +547,7 @@ void LayoutReader_GDSIIbin::ReadSection_XY(GDSIIRecord &_record) {
       p_structRef->coords.push_back(coord);
       break;
     case GeometryType::text:
-      p_text = static_cast<Text *>(p_activeGeometry);
+      p_text = static_cast<Text *>(activeGeometry);
 
       file.read(reinterpret_cast<char *>(&coord), sizeof(Coord));
       Normalize_DWORD(coord.x);
@@ -562,53 +560,53 @@ void LayoutReader_GDSIIbin::ReadSection_XY(GDSIIRecord &_record) {
       //MessageManager::Get()->PushError("Format error. Found XY section given for inproper type of element.");
   }
   
-  if (p_activeGeometry->coords.empty())
+  if (activeGeometry->coords.empty())
     return;
 
-  p_activeGeometry->minCoord = p_activeGeometry->maxCoord = p_activeGeometry->coords[0];
-  for (size_t i = 1; i < p_activeGeometry->coords.size(); ++i) {
-    if (p_activeGeometry->minCoord.x > p_activeGeometry->coords[i].x)
-      p_activeGeometry->minCoord.x = p_activeGeometry->coords[i].x;
-    if (p_activeGeometry->minCoord.y > p_activeGeometry->coords[i].y)
-      p_activeGeometry->minCoord.y = p_activeGeometry->coords[i].y;
-    if (p_activeGeometry->maxCoord.x < p_activeGeometry->coords[i].x)
-      p_activeGeometry->maxCoord.x = p_activeGeometry->coords[i].x;
-    if (p_activeGeometry->maxCoord.y < p_activeGeometry->coords[i].y)
-      p_activeGeometry->maxCoord.y = p_activeGeometry->coords[i].y;
+  activeGeometry->minCoord = activeGeometry->maxCoord = activeGeometry->coords[0];
+  for (size_t i = 1; i < activeGeometry->coords.size(); ++i) {
+    if (activeGeometry->minCoord.x > activeGeometry->coords[i].x)
+      activeGeometry->minCoord.x = activeGeometry->coords[i].x;
+    if (activeGeometry->minCoord.y > activeGeometry->coords[i].y)
+      activeGeometry->minCoord.y = activeGeometry->coords[i].y;
+    if (activeGeometry->maxCoord.x < activeGeometry->coords[i].x)
+      activeGeometry->maxCoord.x = activeGeometry->coords[i].x;
+    if (activeGeometry->maxCoord.y < activeGeometry->coords[i].y)
+      activeGeometry->maxCoord.y = activeGeometry->coords[i].y;
   }
 }
 
 void LayoutReader_GDSIIbin::ReadSection_ENDELEMENT(GDSIIRecord &_record) {
-  if (!p_activeLibrary) {
+  if (!activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found ENDELEMENT section outside of library.");
     return;
   }
-  if (!p_activeElement) {
+  if (!activeElement) {
     //MessageManager::Get()->PushError("Format error. Found ENDELEMENT section outside of structure.");
     return;
   }
-  if (!p_activeGeometry) {
+  if (!activeGeometry) {
     //MessageManager::Get()->PushError("Format error. Found ENDELEMENT section outside of element.");
     return;
   }
 
-  p_activeGeometry = nullptr;
+  activeGeometry = nullptr;
 }
 
 void LayoutReader_GDSIIbin::ReadSection_SNAME(GDSIIRecord &_record) {
-  if (!p_activeLibrary) {
+  if (!activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found SNAME section outside of library.");
     return;
   }
-  if (!p_activeElement) {
+  if (!activeElement) {
     //MessageManager::Get()->PushError("Format error. Found SNAME section outside of structure.");
     return;
   }
-  if (!p_activeGeometry) {
+  if (!activeGeometry) {
     //MessageManager::Get()->PushError("Format error. Found SNAME section outside of element.");
     return;
   }
-  if (p_activeGeometry->type != GeometryType::reference) {
+  if (activeGeometry->type != GeometryType::reference) {
     //MessageManager::Get()->PushError("Format error. Found SNAME section given for inproper type of element.");
     return;
   }
@@ -616,7 +614,7 @@ void LayoutReader_GDSIIbin::ReadSection_SNAME(GDSIIRecord &_record) {
   char *str = new char[_record.length + 1];
   memset(str, 0, _record.length + 1);
   file.read(str, _record.length);
-  static_cast<Reference *>(p_activeGeometry)->name = str;
+  static_cast<Reference *>(activeGeometry)->name = str;
   delete[] str;
   str = nullptr;
 }
@@ -626,19 +624,19 @@ void LayoutReader_GDSIIbin::ReadSection_SNAME(GDSIIRecord &_record) {
 //void LayoutReader_GDSIIbin::ReadSection_NODE(GDSIIRecord &_record) {}
 
 void LayoutReader_GDSIIbin::ReadSection_TEXTTYPE(GDSIIRecord &_record) {
-  if (!p_activeLibrary) {
+  if (!activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found TEXTTYPE section outside of library.");
     return;
   }
-  if (!p_activeElement) {
+  if (!activeElement) {
     //MessageManager::Get()->PushError("Format error. Found TEXTTYPE section outside of structure.");
     return;
   }
-  if (!p_activeGeometry) {
+  if (!activeGeometry) {
     //MessageManager::Get()->PushError("Format error. Found TEXTTYPE section outside of element.");
     return;
   }
-  if (p_activeGeometry->type != GeometryType::text) {
+  if (activeGeometry->type != GeometryType::text) {
     //MessageManager::Get()->PushError("Format error. Found TEXTTYPE section given for inproper type of element.");
     return;
   }
@@ -647,23 +645,23 @@ void LayoutReader_GDSIIbin::ReadSection_TEXTTYPE(GDSIIRecord &_record) {
   file.read(reinterpret_cast<char *>(&type), sizeof(int16_t));
   Normalize_WORD(type);
 
-  static_cast<Text *>(p_activeGeometry)->textType = type;
+  static_cast<Text *>(activeGeometry)->textType = type;
 }
 
 void LayoutReader_GDSIIbin::ReadSection_PRESENTATION(GDSIIRecord &_record) {
-  if (!p_activeLibrary) {
+  if (!activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found PRESENTATION section outside of library.");
     return;
   }
-  if (!p_activeElement) {
+  if (!activeElement) {
     //MessageManager::Get()->PushError("Format error. Found PRESENTATION section outside of structure.");
     return;
   }
-  if (!p_activeGeometry) {
+  if (!activeGeometry) {
     //MessageManager::Get()->PushError("Format error. Found PRESENTATION section outside of element.");
     return;
   }
-  if (p_activeGeometry->type != GeometryType::text) {
+  if (activeGeometry->type != GeometryType::text) {
     //MessageManager::Get()->PushError("Format error. Found PRESENTATION section given for inproper type of element.");
     return;
   }
@@ -672,25 +670,25 @@ void LayoutReader_GDSIIbin::ReadSection_PRESENTATION(GDSIIRecord &_record) {
   file.read(reinterpret_cast<char *>(&flags), sizeof(int16_t));
   Normalize_WORD(flags);
 
-  static_cast<Text *>(p_activeGeometry)->flagsPresentation = flags;
+  static_cast<Text *>(activeGeometry)->flagsPresentation = flags;
 }
 
 // UNUSED
 
 void LayoutReader_GDSIIbin::ReadSection_STRING(GDSIIRecord &_record) {
-  if (!p_activeLibrary) {
+  if (!activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found STRING section outside of library.");
     return;
   }
-  if (!p_activeElement) {
+  if (!activeElement) {
     //MessageManager::Get()->PushError("Format error. Found STRING section outside of structure.");
     return;
   }
-  if (!p_activeGeometry) {
+  if (!activeGeometry) {
     //MessageManager::Get()->PushError("Format error. Found STRING section outside of element.");
     return;
   }
-  if (p_activeGeometry->type != GeometryType::text) {
+  if (activeGeometry->type != GeometryType::text) {
     //MessageManager::Get()->PushError("Format error. Found STRING section given for inproper type of element.");
     return;
   }
@@ -698,21 +696,21 @@ void LayoutReader_GDSIIbin::ReadSection_STRING(GDSIIRecord &_record) {
   char *str = new char[_record.length + 1];
   memset(str, 0, _record.length + 1);
   file.read(str, _record.length);
-  static_cast<Text *>(p_activeGeometry)->stringValue = str;
+  static_cast<Text *>(activeGeometry)->stringValue = str;
   delete[] str;
   str = nullptr;
 }
 
 void LayoutReader_GDSIIbin::ReadSection_STRANS(GDSIIRecord &_record) {
-  if (!p_activeLibrary) {
+  if (!activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found STRANS section outside of library.");
     return;
   }
-  if (!p_activeElement) {
+  if (!activeElement) {
     //MessageManager::Get()->PushError("Format error. Found STRANS section outside of structure.");
     return;
   }
-  if (!p_activeGeometry) {
+  if (!activeGeometry) {
     //MessageManager::Get()->PushError("Format error. Found STRANS section outside of element.");
     return;
   }
@@ -721,15 +719,15 @@ void LayoutReader_GDSIIbin::ReadSection_STRANS(GDSIIRecord &_record) {
   file.read(reinterpret_cast<char *>(&flags), sizeof(int16_t));
   Normalize_WORD(flags);
 
-  switch (p_activeGeometry->type) {
+  switch (activeGeometry->type) {
     case GeometryType::reference:
-      //static_cast<GDSII_StructureRef *>(p_activeGeometry)-> = flags;
+      //static_cast<GDSII_StructureRef *>(activeGeometry)-> = flags;
       break;
     //case it_arrayRef:
-      //static_cast<GDSII_ArrayRef *>(p_activeGeometry)-> = flags;
+      //static_cast<GDSII_ArrayRef *>(activeGeometry)-> = flags;
       //break;
     case GeometryType::text:
-      static_cast<Text *>(p_activeGeometry)->flagsTransformation = flags;
+      static_cast<Text *>(activeGeometry)->flagsTransformation = flags;
       break;
     default:
       ;
@@ -738,15 +736,15 @@ void LayoutReader_GDSIIbin::ReadSection_STRANS(GDSIIRecord &_record) {
 }
 
 void LayoutReader_GDSIIbin::ReadSection_MAG(GDSIIRecord &_record) {
-  if (!p_activeLibrary) {
+  if (!activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found MAG section outside of library.");
     return;
   }
-  if (!p_activeElement) {
+  if (!activeElement) {
     //MessageManager::Get()->PushError("Format error. Found MAG section outside of structure.");
     return;
   }
-  if (!p_activeGeometry) {
+  if (!activeGeometry) {
     //MessageManager::Get()->PushError("Format error. Found MAG section outside of element.");
     return;
   }
@@ -755,15 +753,15 @@ void LayoutReader_GDSIIbin::ReadSection_MAG(GDSIIRecord &_record) {
   file.read(reinterpret_cast<char *>(&mag), sizeof(double));
   Normalize_DOUBLE(mag);
 
-  switch (p_activeGeometry->type) {
+  switch (activeGeometry->type) {
     case GeometryType::reference:
-      static_cast<Reference *>(p_activeGeometry)->magnification = mag;
+      static_cast<Reference *>(activeGeometry)->magnification = mag;
       break;
     //case et_arrayRef:
-      //static_cast<GDSII_ArrayRef *>(p_activeGeometry)->magnification = mag;
+      //static_cast<GDSII_ArrayRef *>(activeGeometry)->magnification = mag;
       //break;
     case GeometryType::text:
-      static_cast<Text *>(p_activeGeometry)->magnification = mag;
+      static_cast<Text *>(activeGeometry)->magnification = mag;
       break;
     default:
       ;
@@ -778,15 +776,15 @@ void LayoutReader_GDSIIbin::ReadSection_MAG(GDSIIRecord &_record) {
 //void LayoutReader_GDSIIbin::ReadSection_FONTS(GDSIIRecord &_record) {}
 
 void LayoutReader_GDSIIbin::ReadSection_PATHTYPE(GDSIIRecord &_record) {
-  if (!p_activeLibrary) {
+  if (!activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found PATHTYPE section outside of library.");
     return;
   }
-  if (!p_activeElement) {
+  if (!activeElement) {
     //MessageManager::Get()->PushError("Format error. Found PATHTYPE section outside of structure.");
     return;
   }
-  if (!p_activeGeometry) {
+  if (!activeGeometry) {
     //MessageManager::Get()->PushError("Format error. Found PATHTYPE section outside of element.");
     return;
   }
@@ -795,12 +793,12 @@ void LayoutReader_GDSIIbin::ReadSection_PATHTYPE(GDSIIRecord &_record) {
   file.read(reinterpret_cast<char *>(&type), sizeof(int16_t));
   Normalize_WORD(type);
 
-  switch (p_activeGeometry->type) {
+  switch (activeGeometry->type) {
     case GeometryType::path:
-      static_cast<Path *>(p_activeGeometry)->pathType = type;
+      static_cast<Path *>(activeGeometry)->pathType = type;
       break;
     case GeometryType::text:
-      static_cast<Text *>(p_activeGeometry)->pathType = type;
+      static_cast<Text *>(activeGeometry)->pathType = type;
       break;
     default:
       ;
@@ -819,19 +817,19 @@ void LayoutReader_GDSIIbin::ReadSection_PATHTYPE(GDSIIRecord &_record) {
 //void LayoutReader_GDSIIbin::ReadSection_NODETYPE(GDSIIRecord &_record) {}
 
 void LayoutReader_GDSIIbin::ReadSection_PROPATTR(GDSIIRecord &_record) {
-  if (!p_activeLibrary) {
+  if (!activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found PROPATTR section outside of library.");
     return;
   }
-  if (!p_activeElement) {
+  if (!activeElement) {
     //MessageManager::Get()->PushError("Format error. Found PROPATTR section outside of structure.");
     return;
   }
-  if (!p_activeGeometry) {
+  if (!activeGeometry) {
     //MessageManager::Get()->PushError("Format error. Found PROPATTR section outside of element.");
     return;
   }
-  if (!p_activeGeometry->properties.empty() && p_activeGeometry->properties.back().value.empty()) {
+  if (!activeGeometry->properties.empty() && activeGeometry->properties.back().value.empty()) {
     //MessageManager::Get()->PushError("Format error. Found next PROPATTR section before previous PROPVALUE section was met.");
     return;
   }
@@ -840,24 +838,24 @@ void LayoutReader_GDSIIbin::ReadSection_PROPATTR(GDSIIRecord &_record) {
   file.read(reinterpret_cast<char *>(&prop.index), sizeof(int16_t));
   Normalize_WORD(prop.index);
 
-  p_activeGeometry->properties.push_back(prop);
-  //p_activeGeometry->readingProperty = true;
+  activeGeometry->properties.push_back(prop);
+  //activeGeometry->readingProperty = true;
 }
 
 void LayoutReader_GDSIIbin::ReadSection_PROPVALUE(GDSIIRecord &_record) {
-  if (!p_activeLibrary) {
+  if (!activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found PROPVALUE section outside of library.");
     return;
   }
-  if (!p_activeElement) {
+  if (!activeElement) {
     //MessageManager::Get()->PushError("Format error. Found PROPVALUE section outside of structure.");
     return;
   }
-  if (!p_activeGeometry) {
+  if (!activeGeometry) {
     //MessageManager::Get()->PushError("Format error. Found PROPVALUE section outside of element.");
     return;
   }
-  if (!p_activeGeometry->properties.empty() && p_activeGeometry->properties.back().value.empty()) {
+  if (!activeGeometry->properties.empty() && activeGeometry->properties.back().value.empty()) {
     //MessageManager::Get()->PushError("Format error. Found PROPVALUE section before PROPATTR section was met.");
     return;
   }
@@ -865,45 +863,45 @@ void LayoutReader_GDSIIbin::ReadSection_PROPVALUE(GDSIIRecord &_record) {
   char *str = new char[_record.length + 1];
   memset(str, 0, _record.length + 1);
   file.read(str, _record.length);
-  p_activeGeometry->properties[p_activeGeometry->properties.size() - 1].value = str;
+  activeGeometry->properties[activeGeometry->properties.size() - 1].value = str;
   delete[] str;
   str = nullptr;
 
-  //p_activeGeometry->readingProperty = false;
+  //activeGeometry->readingProperty = false;
 }
 
 void LayoutReader_GDSIIbin::ReadSection_BOX(GDSIIRecord &_record) {
-  if (!p_activeLibrary) {
+  if (!activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found BOX section outside of library.");
     return;
   }
-  if (!p_activeElement) {
+  if (!activeElement) {
     //MessageManager::Get()->PushError("Format error. Found BOX section outside of structure.");
     return;
   }
-  if (p_activeGeometry) {
+  if (activeGeometry) {
     //MessageManager::Get()->PushError("Format error. Found BOX section inside of element.");
     return;
   }
 
-  p_activeGeometry = new Rectangle;
-  p_activeElement->geometries.push_back(p_activeGeometry);
+  activeGeometry = new Rectangle;
+  activeElement->geometries.push_back(activeGeometry);
 }
 
 void LayoutReader_GDSIIbin::ReadSection_BOXTYPE(GDSIIRecord &_record) {
-  if (!p_activeLibrary) {
+  if (!activeLibrary) {
     //MessageManager::Get()->PushError("Format error. Found BOXTYPE section outside of library.");
     return;
   }
-  if (!p_activeElement) {
+  if (!activeElement) {
     //MessageManager::Get()->PushError("Format error. Found BOXTYPE section outside of structure.");
     return;
   }
-  if (!p_activeGeometry) {
+  if (!activeGeometry) {
     //MessageManager::Get()->PushError("Format error. Found BOXTYPE section outside of element.");
     return;
   }
-  if (p_activeGeometry->type != GeometryType::rectangle) {
+  if (activeGeometry->type != GeometryType::rectangle) {
     //MessageManager::Get()->PushError("Format error. Found BOXTYPE section given for wrong type of element.");
     return;
   }
@@ -912,7 +910,7 @@ void LayoutReader_GDSIIbin::ReadSection_BOXTYPE(GDSIIRecord &_record) {
   file.read(reinterpret_cast<char *>(&type), sizeof(int16_t));
   Normalize_WORD(type);
 
-  static_cast<Rectangle *>(p_activeGeometry)->rectType = type;
+  static_cast<Rectangle *>(activeGeometry)->rectType = type;
 }
 
 //void LayoutReader_GDSIIbin::ReadSection_PLEX(GDSIIRecord &_record) {}

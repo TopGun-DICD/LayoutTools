@@ -10,7 +10,7 @@ int main(int argc, char *argv[]) {
   Layout  layout;
 
   if (argc != 2) {
-    std::cerr << "The layout file name has not been passed" << std::endl;
+    std::cerr << "The layout file name was not passed" << std::endl;
     return EXIT_FAILURE;
   }
   std::string fname = argv[1];
